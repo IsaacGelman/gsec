@@ -1,52 +1,56 @@
 #!/usr/bin/python
 
 import os
-import subprocess import xml.etree.ElementTree as ET
+import subprocess
+import xml.etree.ElementTree as ET
 import sys 
 
 
 """
+Usage: python3 aseqc.py 1 2 3 4
 Arguments:
-1) positive (string)
-2) negative (string)
+1) positive strategy (string)
+2) positive organism (string)
+3) negative strategy (string)
+4) negative organism (stirng)
 
-Obs: expecting input like "strategy_organism" for positive and negative strings
-If there are spaces in a word, separate with "-"
-
-Obs2: Implement better arguments with getopt module later
 """
 def main(argv):
+	# Check arguments
+	if len(argv[1:]) != 4:
+		print('Usage: ')
+		print('python3 aseqc.py pos_strat pos_org neg_strat neg_org')
+		return 1
+
+
 	# Get positive and negative strings
-	pos = argv[1]
-	neg = argv[2]
+	pos_strat, pos_org = argv[1], argv[2]
+	neg_strat, neg_org = argv[3], argv[4]
 	
-	# get xml result into temp file
-	pos_strat, pos_org = pos.split('_')[0], pos.split('_')[1]
-	neg_strat, neg_org = neg.split('_')[0], neg.split('_')[1]
+	# Queries
+	pos_query = 'esearch -db sra -query "{}[strategy] AND {}[organism]" | efetch -db sra -format docsum > {}'.format(pos_strat, pos_org, 'pos.xml')
 	
-	pos_query = "esearch -db sra '{}[strategy] AND {}[organism]' | efetch -db sra -format docsum > {}".format(pos_strat, pos_org, 'pos.xml')
-	
-	neg_query = "esearch -db sra '{}[strategy] AND {}[organism]' | efetch -db sra -format docsum > {}".format(neg_strat, neg_org, 'neg.xml')
-	os.system(pos_query)
-	os.system(neg_query)
+	neg_query = 'esearch -db sra -query "{}[strategy] AND {}[organism]" | efetch -db sra -format docsum > {}'.format(neg_strat, neg_org, 'neg.xml')
+	subprocess.call(pos_query, shell=True)
+	subprocess.call(neg_query, shell=True)
 
 	# get srrs
 	pos_srrs = parse_xml('pos.xml', 5)
 	neg_srrs = parse_xml('neg.xml', 5)
 
 	# delete temp srr files
-	os.system('rm pos.xml, neg.xml')
+	os.system('rm pos.xml neg.xml')
 	
 	# download files
 	print("Downloading positive...")
 	for srr in pos_srrs:
-		os.system('srapath {} | wget').format(srr)
+		os.system('srapath {} | curl'.format(srr))
+	print("Downloading negative...")
 	for srr in neg_srrs:
-		os.system('srapath {} | wget').format(srr)
+		os.system('srapath {} | curl'.format(srr))
 
 	return 0
-	
-	
+
 
 """
 filename (str): name of xml file to read
