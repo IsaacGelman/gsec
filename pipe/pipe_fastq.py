@@ -10,9 +10,9 @@ def hello(fastq):
     for line in lines:
         if (len(line) != 0):
             if (line[0] == "A" or line[0] == "C" or line[0] == "G" or line[0] == "T"):
-                # os.system("echo " + line)
-                os.system("echo " + line + " >> out.txt")
+                os.system("./count_spot 1 "+ line)
     print("HELLO")
+
 
 data = sys.stdin.read()
 hello(data)
