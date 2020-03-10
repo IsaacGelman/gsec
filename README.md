@@ -3,7 +3,7 @@
 
 # Usage:
 
-# streaming and piping functions
+# Streaming and piping functions:
 usage: compile with `g++ stream_kmers.cpp -o stream_kmers`.
 
 On its own, stream_kmers takes two parameters: the first parameter is the k value and the second paramter is the maximum number of reads to count. Next functionality to implements is an auto-stopping based on convergence of kmer-count frequency.
