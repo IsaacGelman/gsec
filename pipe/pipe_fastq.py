@@ -3,10 +3,15 @@ import os
 import glob
 
 def hello(fastq):
-    print("first char " + fastq[0])
     print("INPUT: " + fastq)
     print("END INPUT")
-    os.system(fastq + " >> out.txt")
+
+    lines = fastq.split()
+    for line in lines:
+        if (len(line) != 0):
+            if (line[0] == "A" or line[0] == "C" or line[0] == "G" or line[0] == "T"):
+                # os.system("echo " + line)
+                os.system("echo " + line + " >> out.txt")
     print("HELLO")
 
 data = sys.stdin.read()
