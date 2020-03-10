@@ -6,6 +6,12 @@ __pycache__/
 # C extensions
 *.so
 
+# stream_kmers compiled object
+stream_kmers
+
+# ignore counts file
+out.txt
+
 # Distribution / packaging
 .Python
 build/

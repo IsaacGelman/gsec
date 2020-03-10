@@ -61,8 +61,13 @@ limit (int): limit number of reads to count for given file
 srr (str): srr id for read
 """
 def count(k, limit, srr):
+	# check if stream_kmers is compiled
+	if ('stream_kmers') not in os.listdir():
+		# compile
+		subprocess.call('g++ stream_kmers.cpp -o stream_kmers', shell=True)
+
 	# shell commands to run
-	fastq = "fastq-dump --skip-technical --split-spot -Z {}"	
+	fastq = "fastq-dump --skip-technical --split-spot -Z {}".format(srr)	
 	count = "./stream_kmers {} {} > out.txt".format(str(k), str(limit))
 	full = fastq + " | " + count
 	subprocess.call(full, shell=True)
