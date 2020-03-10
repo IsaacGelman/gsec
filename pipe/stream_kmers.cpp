@@ -46,6 +46,7 @@
 #include <exception>
 #include <stdexcept>
 #include <algorithm>
+#include <csignal>
 
 using std::string;
 using std::vector;
@@ -172,5 +173,7 @@ main(int argc, const char * const argv[]) {
     std::cerr << e.what() << std::endl;
     return 2; // exception thrown somewhere
   }
+   
+  exit(SIGUSR1); 
   return 0; // success
 }
