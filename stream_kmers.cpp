@@ -128,14 +128,27 @@ char encoding[] = {
 	/*112*/ 4, 4, 4, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, /*127 (lower) */
 };
 
-bool check_converge(std::vector<double> &f, std::vector<double> &prev, bool print=false) {
-  double diff = 0;
-  for (int i = 0; i < 4; i++) {
-    diff+= (f[i] - prev[i])*(f[i] - prev[i]);
-  }
-  if (print) cout << "diff: " << diff << " converged? " << (diff <= 2*pow(10,-5)) << endl;
+// reference code to iterator through vector matrix
+  // for (auto it = f.begin(); it != f.end(); ++it) {
+  //     for (auto jt = it->begin(); jt != it->end(); ++jt) {
+  //       cout << *jt;
+  //     }
+  //   cout << endl;
+  // } 
 
-  return diff <= 2*pow(10,-5);
+
+bool check_converge(std::vector<std::vector<double>> &f, std::vector<std::vector<double>> &prev) {
+  double diff;
+
+  for (unsigned int i = 0; i < f.size(); i++) {
+    for (unsigned int j = 0; j < f[i].size(); j++) {
+      diff = (f[i][j] - prev[i][j])*(f[i][j] - prev[i][j]);
+      if (diff > 2*pow(10,-5)) {
+        return false; 
+      }
+    }  
+  }
+  return true;
 }
 
 int
@@ -151,12 +164,25 @@ main(int argc, const char * const argv[]) {
     const size_t k_value(atoi(argv[1])); // need error checking here
     const size_t limit(atoi(argv[2])); // need error checking here
 
+    std::vector<kmer_counter*> the_counters;
+    for (unsigned int i = 0; i < k_value; i++) {
+      the_counters.push_back(new kmer_counter(i+1));
+    }
+
     kmer_counter the_counter(k_value);
-    std::vector<unsigned int> counts(the_counter.n_kmers);
+
     size_t lines_with_N = 0;
 
-    std::vector<double> freqs(the_counter.n_kmers);
-    std::vector<double> prev_freqs(the_counter.n_kmers);
+    std::vector<std::vector<unsigned int>> counts(k_value);
+    std::vector<std::vector<double>> freqs(k_value);
+    std::vector<std::vector<double>> prev_freqs(k_value);
+
+    for (unsigned int i = 0; i < k_value; i++) {
+      counts[i].resize(the_counters[i]->n_kmers);
+      freqs[i].resize(the_counters[i]->n_kmers);
+      prev_freqs[i].resize(the_counters[i]->n_kmers);
+    }
+
 
     string line;
     line.reserve(256);
@@ -175,50 +201,70 @@ main(int argc, const char * const argv[]) {
             converge = check_converge(freqs, prev_freqs);
           }
 
-          for (unsigned int i = 0; i < 4; i++) {
-            prev_freqs[i] = freqs[i];
+          for (unsigned int i = 0; i < freqs.size(); i++) {
+            for (unsigned int j = 0; j < freqs[i].size(); j++) {
+              prev_freqs[i][j] = freqs[i][j];
+            }   
           }
 
-          
 
           std::transform(begin(line), end(line), begin(line),
                          [](const char c) {return encoding[c];});
-          the_counter.count_line(line, counts, freqs);
+          
+          for (unsigned int i = 0; i < k_value; i++) {
+            the_counters[i]->count_line(line, counts[i], freqs[i]);
+          }
+          
 	        ++reads_count;
 
-          for (unsigned int i = 0; i < 4; i++) {
-            freqs[i] = (double(counts[i]) / the_counter.total_kmers);
+          for (unsigned int i = 0; i < freqs.size(); i++) {
+            for (unsigned int j = 0; j < freqs[i].size(); j++) {
+              freqs[i][j] = (double(counts[i][j]) / the_counters[i]->total_kmers);
+            }   
           }
         }
         else ++lines_with_N;
       line_count++;
     }
 
-    string k_mer_sequence;
-    k_mer_sequence.resize(k_value); // avoid re-allocating space
-
-    cout << "total " << the_counter.total_kmers << endl;
     cout << "final reads count: " << reads_count << endl;
-    string end = "???";
-    if (!getline(cin, line)) {
-      end = "reached end of file";
-    }
-    else if (reads_count >= limit) {
-      end = "reached limit";
-    }
-    else if(converge) {
-      end = "kmer frequencies converged";
+      string end = "???";
+      if (!getline(cin, line)) {
+        end = "reached end of file";
+      }
+      else if (reads_count >= limit) {
+        end = "reached limit";
+      }
+      else if(converge) {
+        end = "kmer frequencies converged";
     }
     cout << "ended because: " << end << endl;
-    for (size_t i = 0; i < the_counter.n_kmers; ++i) {
-      decode_kmer_inplace(k_value, i, k_mer_sequence);
-      cout << k_mer_sequence << '\t' << counts[i] << '\n';
+    
+    for (unsigned int i = 0; i < the_counters.size(); i++) {
+
+      string k_mer_sequence;
+      k_mer_sequence.resize(i+1); // avoid re-allocating space
+
+      cout << "total " << (i+1) << "-mers: " << the_counters[i]->total_kmers << endl;
+      
+      for (size_t j = 0; j < the_counters[i]->n_kmers; ++j) {
+        decode_kmer_inplace(i, j, k_mer_sequence);
+        cout << k_mer_sequence << '\t' << counts[i][j] << '\n';
+      }
+
+      cout << endl;
+      cout << "frequencies: " << endl;
+      for (size_t j = 0; j < the_counters[i]->n_kmers; ++j) {
+        decode_kmer_inplace(i, j, k_mer_sequence);
+        cout << k_mer_sequence << '\t' << freqs[i][j] << '\n';
+      }
+      cout << endl;
     }
 
-    for (size_t i = 0; i < the_counter.n_kmers; ++i) {
-      decode_kmer_inplace(k_value, i, k_mer_sequence);
-      cout << k_mer_sequence << '\t' << freqs[i] << '\n';
+    for (unsigned int i = 0; i < k_value; i++) {
+      delete the_counters[i];
     }
+    
 
     // output the additional info
     std::cerr << "total_reads: "

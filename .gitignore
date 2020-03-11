@@ -8,6 +8,7 @@ __pycache__/
 
 # stream_kmers compiled object
 stream_kmers
+count
 
 # ignore counts file
 out.txt
