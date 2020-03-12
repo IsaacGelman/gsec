@@ -10,6 +10,9 @@ __pycache__/
 stream_kmers
 count
 
+# local sra file
+SRR5149059.sra
+
 # ignore counts file
 out.txt
 
