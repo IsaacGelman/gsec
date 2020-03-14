@@ -13,8 +13,9 @@ count
 # local sra file
 SRR5149059.sra
 
-# ignore counts file
+# ignore input/output file
 out.txt
+in_file.txt
 
 # Distribution / packaging
 .Python
