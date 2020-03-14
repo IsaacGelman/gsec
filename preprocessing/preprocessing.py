@@ -51,7 +51,11 @@ def main(argv):
     # delete temp srr files
     os.system('rm pos.xml neg.xml')
 
-    # create directories
+    # validate directories to save files
+    try:
+        os.mkdir(out)
+    except FileExistsError:
+        pass
     try:
         os.mkdir(out+'/positive')
     except FileExistsError:
