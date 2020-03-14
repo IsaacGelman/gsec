@@ -9,12 +9,12 @@ import sys
 
 def main(argv):
     """
-    Usage: python3 preprocessing.py 1 2 3 4 5 6
+    Usage: python preprocessing.py 1 2 3 4 5 6 7
     Arguments:
     1) positive strategy (string)
     2) positive organism (string)
     3) negative strategy (string)
-    4) negative organism (stirng)
+    4) negative organism (string)
     5) max kmer to count (int)
     6) limit of reads for each srr (int)
     7) directory to save files
@@ -51,6 +51,17 @@ def main(argv):
     # delete temp srr files
     os.system('rm pos.xml neg.xml')
 
+    # create directories
+    try:
+        os.mkdir(out+'/positive')
+    except FileExistsError:
+        pass
+    try:
+        os.mkdir(out+'/negative')
+    except FileExistsError:
+        pass
+
+
     # count srrs
     print("Counting positives...")
     for srr in pos_srrs:
@@ -71,7 +82,8 @@ def count(k, limit, srr, out):
     # check if stream_kmers is compiled
     if ('stream_kmers') not in os.listdir():
         # compile
-        subprocess.call('g++ stream_kmers.cpp -o stream_kmers', shell=True)
+
+        subprocess.call('g++ ../stream_kmers.cpp -o stream_kmers', shell=True)
 
     # shell commands to run
     filename = out+'/'+srr+'.txt'
