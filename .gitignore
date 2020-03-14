@@ -12,6 +12,9 @@ stream_kmers
 # ignore counts file
 out.txt
 
+# ignore generated data
+data
+
 # Distribution / packaging
 .Python
 build/
