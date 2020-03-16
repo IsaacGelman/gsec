@@ -1,5 +1,6 @@
-# gsec (Generalized Sequencing Classifier) 
-## Center for Artificial Intelligence in Society (CAIS++) and Smith Computational Genomics Lab Collaboration.
+# gsec (Generalized Sequencing Classifier)
+## pronounced "jee-seek"
+### Center for Artificial Intelligence in Society (CAIS++) and Smith Computational Genomics Lab Collaboration.
 
 # Usage:
 
