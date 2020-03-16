@@ -1,5 +1,5 @@
-# Center for Artificial Intelligence in Society (CAIS++) and Smith Computational Genomics Lab Collaboration.
-## Potential names for program: nift, readBull, readNeck, readHat, nowYouSeqMe
+# gsec (_G_eneralized _Se_quencing Classifier) 
+## Center for Artificial Intelligence in Society (CAIS++) and Smith Computational Genomics Lab Collaboration.
 
 # Usage:
 
