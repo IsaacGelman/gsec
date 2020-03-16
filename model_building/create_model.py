@@ -14,10 +14,11 @@ from sklearn.linear_model import Lasso
 
 
 
-'''
-helper function to append new data
-'''
+
 def file_shell(df,fname,ind):
+    '''
+    helper function to append new data
+    '''
     df1 = pd.read_csv(fname, sep='\t', header=None)
     df1.set_index(0, inplace=True)
     df2 = df1.transpose()
@@ -26,33 +27,36 @@ def file_shell(df,fname,ind):
     return df3
 
 
-'''
-function: normalize
-Normalizes a counts dataframe
-
-Assumes that all values of k from 1 to maxk
-are in a counts dataframe, and that all of
-the k-mers for any particular value of k are grouped
-together
-
-Needs to be modified to take a list of "k" values
-in the future after the regularization step is
-complete
-'''
 def normalize(df, maxk):
+    '''
+    function: normalize
+    Normalizes a counts dataframe
+
+    Assumes that all values of k from 1 to maxk
+    are in a counts dataframe, and that all of
+    the k-mers for any particular value of k are grouped
+    together
+
+    Needs to be modified to take a list of "k" values
+    in the future after the regularization step is
+    complete
+    '''
     start_i = 0
     for k in range(1, maxk+1):
         end_i = start_i + 4**k #end index
-        df.iloc[:,start_i:end_i] = df.iloc[:,start_i:end_i].div(df.iloc[:,start_i:end_i].sum(axis=1), axis='rows')
+        df.iloc[:,start_i:end_i] = df.iloc[:,start_i:end_i].div(
+            df.iloc[:,start_i:end_i].sum(axis=1), axis='rows')
+
         start_i = end_i
    
 
-'''
-function main()
 
-loads data from rna-seq and wgs_human folders
-'''
 def main():
+    '''
+    function main()
+
+    loads data from rna-seq and wgs_human folders
+    '''
     df = pd.DataFrame()
     
     basepath_bs = 'data/rna-seq'
@@ -79,11 +83,13 @@ def main():
 
     y = df.index
 
-    X_train, X_test, y_train, y_test = train_test_split(df.reset_index(drop=True),
-                                                        y, 
-                                                        test_size=0.25, 
-                                                        shuffle=True, 
-                                                        stratify=y)
+    X_train, X_test, y_train, y_test = train_test_split(
+        df.reset_index(drop=True),
+        y, 
+        test_size=0.25, 
+        shuffle=True, 
+        stratify=y
+    )
    
     # initialize and train model
     lasso_model = Lasso(alpha = .0005, tol = 1)
