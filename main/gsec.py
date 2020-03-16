@@ -18,12 +18,16 @@ def main(argv):
     5) max kmer to count (int)
     6) limit of reads for each srr (int)
     7) directory to save files
+    8) number of files to download
     """
+    # Check if there are temp files from last run
+    remove_temp()
+
     # Check arguments
-    if len(argv[1:]) != 7:
+    if len(argv[1:]) != 8:
         print('Usage: ')
         print('python gsec.py pos_strat pos_org neg_strat neg_org \
-        max_k limit_reads out_dir')
+        max_k limit_reads out_dir num_files')
         return 1
 
 
@@ -33,6 +37,7 @@ def main(argv):
     k = argv[5]
     limit = argv[6]
     out = argv[7]
+    n = int(argv[8])
 
     # Queries
     pos_query = 'esearch -db sra -query "{}[strategy] AND {}[organism]" | \
@@ -44,35 +49,35 @@ def main(argv):
     subprocess.call(neg_query, shell=True)
 
     # get srrs
-    pos_srrs = parse_xml('pos.xml', 5)
+    pos_srrs = parse_xml('pos.xml', n)
 
-    neg_srrs = parse_xml('neg.xml', 5)
+    neg_srrs = parse_xml('neg.xml', n)
 
     # delete temp srr files
-    os.system('rm pos.xml neg.xml')
+    remove_temp()
 
     # validate directories to save files
-    try:
-        os.mkdir(out)
-    except FileExistsError:
-        pass
-    try:
-        os.mkdir(out+'/positive')
-    except FileExistsError:
-        pass
-    try:
-        os.mkdir(out+'/negative')
-    except FileExistsError:
-        pass
-
+    validate_dirs(out)
 
     # count srrs
-    print("Counting positives...")
+    print("<--- Counting positives --->")
+    c = 0
     for srr in pos_srrs:
+        c+=1
+        print("Counting {} [{}/{}]...".format(srr, c, len(pos_srrs)))
         count(k, limit, srr, out+'/positive')
-    print("Counting negatives...")
+
+    print("<--- Counting negatives --->")
+    c = 0
     for srr in neg_srrs:
+        c += 1
+        print("Counting {} [{}/{}]...".format(srr, c, len(neg_srrs)))
         count(k, limit, srr, out+'/negative')
+
+    print("Done counting!")
+
+    # TODO
+    # Call functions from create_model.py and save model to appropriate folder
 
     return 0
 
@@ -116,8 +121,31 @@ def parse_xml(filename, n):
         for run in runs.iter('Run'):
             srrs.append(run.attrib['acc'])
 
-    return srrs
+    if len(srrs) < n:
+        return srrs
+    else:
+        return srrs[:n]
 
+def remove_temp():
+    files = os.listdir()
+    if "neg.xml" in files:
+        os.system('rm neg.xml')
+    if "pos.xml" in files:
+        os.system('rm pos.xml')    
+
+def validate_dirs(out):
+    try:
+        os.mkdir(out)
+    except FileExistsError:
+        pass
+    try:
+        os.mkdir(out+'/positive')
+    except FileExistsError:
+        pass
+    try:
+        os.mkdir(out+'/negative')
+    except FileExistsError:
+        pass
 
 if __name__ == '__main__':
     main(sys.argv)
