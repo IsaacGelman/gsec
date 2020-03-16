@@ -9,7 +9,7 @@ import sys
 
 def main(argv):
     """
-    Usage: python preprocessing.py 1 2 3 4 5 6 7
+    Usage: python gsec.py 1 2 3 4 5 6 7
     Arguments:
     1) positive strategy (string)
     2) positive organism (string)
@@ -22,7 +22,7 @@ def main(argv):
     # Check arguments
     if len(argv[1:]) != 7:
         print('Usage: ')
-        print('python3 preprocessing.py pos_strat pos_org neg_strat neg_org \
+        print('python gsec.py pos_strat pos_org neg_strat neg_org \
         max_k limit_reads out_dir')
         return 1
 
