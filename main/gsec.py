@@ -20,6 +20,11 @@ def main(argv):
     7) directory to save files
     8) number of files to download
     """
+    # Check if in right directory
+    if os.pwd().split('/') != 'main':
+        print("Please run from gsec/main")
+        return 1
+
     # Check if there are temp files from last run
     remove_temp()
 
