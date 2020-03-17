@@ -4,7 +4,7 @@ import os
 import subprocess
 import xml.etree.ElementTree as ET
 import sys
-
+from xml.etree.ElementTree import ParseError
 
 
 def main(argv):
@@ -21,7 +21,7 @@ def main(argv):
     8) number of files to download
     """
     # Check if in right directory
-    if os.pwd().split('/') != 'main':
+    if os.getcwd().split('/')[-1] != 'main':
         print("Please run from gsec/main")
         return 1
 
@@ -58,8 +58,15 @@ def main(argv):
 
     # get srrs
     pos_srrs = parse_xml('pos.xml', n)
+    if len(pos_srrs) == 0:
+        print('{}, {} returned no matches...'.format(pos_strat, pos_org))
+        return 1
+
 
     neg_srrs = parse_xml('neg.xml', n)
+    if len(neg_srrs) == 0:
+        print('{}, {} returned no matches...'.format(neg_strat, neg_org))
+        return 1
 
     # delete temp srr files
     remove_temp()
@@ -117,10 +124,15 @@ def parse_xml(filename, n):
     """
     filename (str): name of xml file to read
     n (int): number of srrs to fetch, -1 for all
-    returns (list[str]): list of SRRs to download
-    """
 
-    tree = ET.parse(filename)
+    returns: (list[str]): list of SRRs to download. Will return empty list if
+    query returned no results.
+    """
+    try:
+        tree = ET.parse(filename)
+    except ParseError:
+        return []
+
     root = tree.getroot()
 
     # iterate over xml tree and get SRRs
