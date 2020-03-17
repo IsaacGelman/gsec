@@ -1,5 +1,6 @@
-# Center for Artificial Intelligence in Society (CAIS++) and Smith Computational Genomics Lab Collaboration.
-## Potential names for program: nift, readBull, readNeck, readHat, nowYouSeqMe
+# gsec (Generalized Sequencing Classifier)
+## pronounced "jee-seek"
+### Center for Artificial Intelligence in Society (CAIS++) and Smith Computational Genomics Lab Collaboration.
 
 # Usage:
 
@@ -23,4 +24,4 @@ This script will query SRRs that match the specified fields and count the kmers 
 - num_files: number of srrs to count for each target (if there are less files that match the query, the maximum amount of files matched will be downloaded)
 
 Example:
-`python preprocessing.py rna-seq "homo sapiens" wgs "homo sapiens" 6 100 ~/project/data 100`
+`python gsec.py rna-seq "homo sapiens" wgs "homo sapiens" 6 100 ~/project/data 100`
