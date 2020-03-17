@@ -1,48 +1,87 @@
-#!/usr/bin/python
+# gset.py: A program to do something with some other thing
+#
+# Author: Nico and others
+#
+# This software is Copyright (C) 2020 The University of Southern
+# California. All Rights Reserved.
+#
+# Permission to use, copy, modify, and distribute this software and
+# its documentation for educational, research and non-profit purposes,
+# without fee, and without a written agreement is hereby granted,
+# provided that the above copyright notice, this paragraph and the
+# following three paragraphs appear in all copies.
+#
+# Permission to make commercial use of this software may be obtained
+# by contacting:
+#
+# USC Stevens Center for Innovation
+# University of Southern California
+# 1150 S. Olive Street, Suite 2300
+# Los Angeles, CA 90115, USA
+#
+# This software program and documentation are copyrighted by The
+# University of Southern California. The software program and
+# documentation are supplied "as is", without any accompanying
+# services from USC. USC does not warrant that the operation of the
+# program will be uninterrupted or error-free. The end-user
+# understands that the program was developed for research purposes and
+# is advised not to rely exclusively on the program for any reason.
+#
+# IN NO EVENT SHALL THE UNIVERSITY OF SOUTHERN CALIFORNIA BE LIABLE TO
+# ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR
+# CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF THE
+# USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF THE UNIVERSITY
+# OF SOUTHERN CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
+# DAMAGE. THE UNIVERSITY OF SOUTHERN CALIFORNIA SPECIFICALLY DISCLAIMS
+# ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE. THE SOFTWARE PROVIDED
 
-import os
+#!/usr/bin/env python3
+
+import sys, os, argparse
 import subprocess
 import xml.etree.ElementTree as ET
-import sys
 from xml.etree.ElementTree import ParseError
 
-
 def main(argv):
-    """
-    Usage: python gsec.py 1 2 3 4 5 6 7
-    Arguments:
-    1) positive strategy (string)
-    2) positive organism (string)
-    3) negative strategy (string)
-    4) negative organism (string)
-    5) max kmer to count (int)
-    6) limit of reads for each srr (int)
-    7) directory to save files
-    8) number of files to download
-    """
-    # Check if in right directory
-    if os.getcwd().split('/')[-1] != 'main':
-        print("Please run from gsec/main")
-        return 1
+
+    print('python gsec.py pos_strat pos_org neg_strat neg_org \
+    max_k limit_reads out_dir num_files')
+
+    parser = argparse.ArgumentParser(description='prepare project config')
+    parser.add_argument('--pos-strat', dest='pos_strat', required=True,
+                        help='strategy for positive set')
+    parser.add_argument('--pos-org', dest='pos_org', required=True,
+                        help='organism for positive set')
+    parser.add_argument('--neg-strat', dest='neg_strat', required=True,
+                        help='strategy for negative set')
+    parser.add_argument('--neg-org', dest='neg_org', required=True,
+                        help='organism for negative set')
+    parser.add_argument('-k', '--k-value', dest='max_k', required=True,
+                        type=int, help='maximum size of k-mers')
+    parser.add_argument('-l', '--limit-reads', dest='limit_reads',
+                        type=int, required=True, help='number of reads to use')
+    parser.add_argument('-o', '--outdir', dest='out_dir', required=True,
+                        help='output directory')
+    parser.add_argument('-n', '--num-files', dest="num_files",
+                        type=int, required=True,
+                        help='number of files for...')
+    args = parser.parse_args()
 
     # Check if there are temp files from last run
     remove_temp()
 
-    # Check arguments
-    if len(argv[1:]) != 8:
-        print('Usage: ')
-        print('python gsec.py pos_strat pos_org neg_strat neg_org \
-        max_k limit_reads out_dir num_files')
-        return 1
-
-
     # Get positive and negative strings
-    pos_strat, pos_org = argv[1], argv[2]
-    neg_strat, neg_org = argv[3], argv[4]
-    k = argv[5]
-    limit = argv[6]
-    out = argv[7]
-    n = int(argv[8])
+    pos_strat = args.pos_strat
+    pos_org = args.pos_org
+    neg_strat = args.neg_strat
+    neg_org = args.neg_org
+
+    k = args.max_k
+    limit = args.limit_reads
+    out = args.out_dir
+    n = args.num_files
 
     # Queries
     pos_query = 'esearch -db sra -query "{}[strategy] AND {}[organism] \
@@ -149,9 +188,9 @@ def parse_xml(filename, n):
 def remove_temp():
     files = os.listdir()
     if "neg.xml" in files:
-        os.system('rm neg.xml')
+        os.remove('neg.xml')
     if "pos.xml" in files:
-        os.system('rm pos.xml')    
+        os.remove('pos.xml')
 
 def validate_dirs(out):
     try:
@@ -159,11 +198,11 @@ def validate_dirs(out):
     except FileExistsError:
         pass
     try:
-        os.mkdir(out+'/positive')
+        os.mkdir(os.path.join(out, 'positive'))
     except FileExistsError:
         pass
     try:
-        os.mkdir(out+'/negative')
+        os.mkdir(os.path.join(out, 'negative'))
     except FileExistsError:
         pass
 
