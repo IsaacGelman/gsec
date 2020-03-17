@@ -2,6 +2,11 @@
 ## pronounced "jee-seek"
 ### Center for Artificial Intelligence in Society (CAIS++) and Smith Computational Genomics Lab Collaboration.
 
+# Requirements:
+1. Entrez utilities (esearch, etc.)
+2. SRA toolkit
+3. Python 3
+
 # Usage:
 
 # Streaming and piping functions:
