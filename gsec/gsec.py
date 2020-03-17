@@ -107,7 +107,7 @@ def count(k, limit, srr, out):
     if ('stream_kmers') not in os.listdir():
         # compile
 
-        subprocess.call('g++ ../stream_kmers.cpp -o stActualine ream_kmers', shell=True)
+        subprocess.call('g++ ../stream_kmers.cpp -o stream_kmers', shell=True)
 
     # shell commands to run
     filename = out+'/'+srr+'.txt'
