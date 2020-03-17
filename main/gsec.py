@@ -40,11 +40,14 @@ def main(argv):
     n = int(argv[8])
 
     # Queries
-    pos_query = 'esearch -db sra -query "{}[strategy] AND {}[organism]" | \
-    efetch -db sra -format docsum > {}'.format(pos_strat, pos_org, 'pos.xml')
+    pos_query = 'esearch -db sra -query "{}[strategy] AND {}[organism] \
+    LIMIT {}" | efetch -db sra -format docsum > {}' \
+    .format(pos_strat, pos_org, str(n), 'pos.xml')
 
-    neg_query = 'esearch -db sra -query "{}[strategy] AND {}[organism]" | \
-    efetch -db sra -format docsum > {}'.format(neg_strat, neg_org, 'neg.xml')
+    neg_query = 'esearch -db sra -query "{}[strategy] AND {}[organism] \
+    LIMIT {}" | efetch -db sra -format docsum > {}' \
+    .format(neg_strat, neg_org, str(n), 'neg.xml')
+
     subprocess.call(pos_query, shell=True)
     subprocess.call(neg_query, shell=True)
 
@@ -92,7 +95,7 @@ def count(k, limit, srr, out):
     if ('stream_kmers') not in os.listdir():
         # compile
 
-        subprocess.call('g++ ../stream_kmers.cpp -o stream_kmers', shell=True)
+        subprocess.call('g++ ../stream_kmers.cpp -o stActualine ream_kmers', shell=True)
 
     # shell commands to run
     filename = out+'/'+srr+'.txt'
