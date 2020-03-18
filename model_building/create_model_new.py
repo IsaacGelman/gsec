@@ -22,9 +22,6 @@ import time
 
 # File paths
 model_dir = os.path.dirname(os.path.realpath(__file__))
-#main_dir = os.path.dirname(os.getcwd())
-#main_dir = os.path.join(os.environ['HOME'], 'Desktop/genomics_prj/gsec')
-#model_dir = os.path.join(main_dir, 'model_building')
 data_dir = os.path.join(model_dir, 'genomics_data')
 
 
@@ -83,7 +80,6 @@ def main():
     print("Average loading time: %f seconds per experiment" % avg)
     print("Experiments to be processed per minute: %f" % exp_per_min)
     print(df.shape)
-
 
 
 
