@@ -1,5 +1,6 @@
-# gsec.py: A program to fetch data from the SRA Database and provide txt files
-# with kmer counts for desired types of data.
+# gsec-train.py: Processes a command from user specifying a search of the
+# SRA database, downloads a subset of the data needed, picks a model to
+# use, and saves the model for future use.
 #
 # Authors: Nicolas Perez, Isaac Gelman, Natalie Abreu, Shannon Brownlee,
 # Tomas Angelini, Laura Cao, Shreya Havaldar
@@ -48,9 +49,6 @@ from xml.etree.ElementTree import ParseError
 ROOT = os.path.dirname(os.getcwd())
 
 def main():
-
-    
-
     print('python gsec.py pos_strat pos_org neg_strat neg_org \
     max_k limit_reads out_dir num_files')
 
