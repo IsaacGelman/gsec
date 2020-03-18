@@ -26,22 +26,40 @@ data_dir = os.path.join(model_dir, 'genomics_data')
 
 
 """Assumption made on file directories:
- model.py is in the same directory as genomics_data folder """
+ this script is in the same directory as genomics_data folder """
 
+def clear_errors():
+    '''
+    clear previous errors from file so only new errors from current run
+    are recorded
+    '''
+    error_file = open("errors.txt", "w+")
+    error_file.write("project_name, file_name, error_type")
 
 def dir_check():
     """
     Check directories
-    """    
+    """
     print("model directory: ", model_dir)
     print("data directory: ", data_dir)
 
 
-def file_shell(df,fname,ind):          
+def file_shell(df,proj,fname,ind):
     """
     Append experiment of name "fname" to dataframe
     """
     df_new = pd.read_csv(fname, sep='\t', header=None)
+
+    '''
+    If number of rows in txt file doesn't match number of kmers, don't append
+    '''
+    if not df.empty:
+        if ((df_new.shape)[0] != (df.shape)[1]):
+            error_file = open("errors.txt", "a+")
+            error_file.write("\r%s, %s, missing_kmers" % (proj.name,
+            fname.name))
+            return df
+
     df_new.set_index(0, inplace=True)
     df_new = df_new.transpose()
     df_new.index = [ind]
@@ -52,27 +70,33 @@ def load_data(data_name, df):
     """
     Function loads a certain type of data
     for each experiment, call file_shell
-    file_shell returns a dataframe with 
+    file_shell returns a dataframe with
     kmer data of most recent experiment
     appended to it
     """
-    counter = 0
+
     SRPs = Path(os.path.join(data_dir, data_name))
     for project in SRPs.iterdir():
         if project.is_dir():
             experiment_list = Path(os.path.join(SRPs, project))
             for experiment in experiment_list.iterdir():
-                counter += 1
+                #print("Current exp: %s" % experiment)
                 if os.stat(experiment).st_size != 0:
-                    df = file_shell(df, experiment, 1)
+                    df = file_shell(df, project, experiment, 1)
+                else:
+                    #print("ERROR FOUND IN FILE %s" % experiment)
+                    error_file = open("errors.txt", "a+")
+                    error_file.write("\r%s, %s, empty_file" % (project.name,
+                    experiment.name))
     return df
 
 
 def main():
+    clear_errors()
     start_time = time.time()
     df = pd.DataFrame()
     # dir_check()
-    df = load_data("rna-seq", df)
+    #df = load_data("rna-seq", df)
     df = load_data("wgs_human", df)
 
     end_time = float(time.time() - start_time)
