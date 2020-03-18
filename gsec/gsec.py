@@ -1,6 +1,8 @@
-# gset.py: A program to do something with some other thing
+# gsec.py: A program to fetch data from the SRA Database and provide txt files
+# with kmer counts for desired types of data.
 #
-# Author: Nico and others
+# Authors: Nicolas Perez, Isaac Gelman, Natalie Abreu, Shannon Brownlee,
+# Tomas Angelini, Laura Cao, Shreya Havaldar
 #
 # This software is Copyright (C) 2020 The University of Southern
 # California. All Rights Reserved.
@@ -37,14 +39,17 @@
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
 # PURPOSE. THE SOFTWARE PROVIDED
 
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import sys, os, argparse
 import subprocess
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import ParseError
+ROOT = os.path.dirname(os.getcwd())
 
-def main(argv):
+def main():
+
+    
 
     print('python gsec.py pos_strat pos_org neg_strat neg_org \
     max_k limit_reads out_dir num_files')
@@ -70,7 +75,7 @@ def main(argv):
     args = parser.parse_args()
 
     # Check if there are temp files from last run
-    remove_temp()
+    remove_temp(os.path.join(ROOT, 'utils'))
 
     # Get positive and negative strings
     pos_strat = args.pos_strat
@@ -84,31 +89,23 @@ def main(argv):
     n = args.num_files
 
     # Queries
-    pos_query = 'esearch -db sra -query "{}[strategy] AND {}[organism] \
-    LIMIT {}" | efetch -db sra -format docsum > {}' \
-    .format(pos_strat, pos_org, str(n), 'pos.xml')
-
-    neg_query = 'esearch -db sra -query "{}[strategy] AND {}[organism] \
-    LIMIT {}" | efetch -db sra -format docsum > {}' \
-    .format(neg_strat, neg_org, str(n), 'neg.xml')
-
-    subprocess.call(pos_query, shell=True)
-    subprocess.call(neg_query, shell=True)
+    query(pos_strat, pos_org, n, os.path.join(ROOT, 'utils', 'pos.xml'))
+    query(pos_strat, pos_org, n, os.path.join(ROOT, 'utils', 'neg.xml'))
 
     # get srrs
-    pos_srrs = parse_xml('pos.xml', n)
+    pos_srrs = parse_xml(os.path.join(ROOT, 'utils', 'pos.xml'), n)
     if len(pos_srrs) == 0:
         print('{}, {} returned no matches...'.format(pos_strat, pos_org))
         return 1
 
 
-    neg_srrs = parse_xml('neg.xml', n)
+    neg_srrs = parse_xml(os.path.join(ROOT, 'utils', 'neg.xml'), n)
     if len(neg_srrs) == 0:
         print('{}, {} returned no matches...'.format(neg_strat, neg_org))
         return 1
 
     # delete temp srr files
-    remove_temp()
+    remove_temp(os.path.join(ROOT, 'utils'))
 
     # validate directories to save files
     validate_dirs(out)
@@ -119,14 +116,14 @@ def main(argv):
     for srr in pos_srrs:
         c+=1
         print("Counting {} [{}/{}]...".format(srr, c, len(pos_srrs)))
-        count(k, limit, srr, out+'/positive')
+        count(k, limit, srr, os.path.join(out,'positive'))
 
     print("<--- Counting negatives --->")
     c = 0
     for srr in neg_srrs:
         c += 1
         print("Counting {} [{}/{}]...".format(srr, c, len(neg_srrs)))
-        count(k, limit, srr, out+'/negative')
+        count(k, limit, srr, os.path.join(out,'negative'))
 
     print("Done counting!")
 
@@ -141,22 +138,43 @@ def count(k, limit, srr, out):
     k (int): max kmer to count
     limit (int): limit number of reads to count for given file
     srr (str): srr id for read
+    out (str): directory to save files
     """
     # check if stream_kmers is compiled
-    if ('stream_kmers') not in os.listdir():
+    if ('stream_kmers') not in os.listdir(os.path.join(ROOT, 'utils')):
         # compile
-
-        subprocess.call('g++ ../stream_kmers.cpp -o stream_kmers', shell=True)
+        comp = 'g++ {} -o {}'.format(
+            os.path.join(ROOT, 'utils', 'stream_kmers.cpp'),
+            os.path.join(ROOT, 'utils', 'stream_kmers')
+            )
+        print('COMPILING....')
+        print(comp)
+        subprocess.call(comp, shell=True)
 
     # shell commands to run
-    filename = out+'/'+srr+'.txt'
+    filename = os.path.join(out, '{}.txt'.format(srr))
+    count_path = os.path.join(ROOT, 'utils', 'stream_kmers')
     fastq = "fastq-dump --skip-technical --split-spot -Z {}".format(srr)
-    count = "./stream_kmers {} {} > {}".format(str(k),
-                                               str(limit),
-                                               str(filename))
+    count = "{} {} {} > {}".format(count_path,
+                                     str(k),
+                                     str(limit),
+                                     str(filename))
     full = fastq + " | " + count
     subprocess.call(full, shell=True)
 
+def query(strat, org, n, temp_path):
+    """
+    strat (string): strategy to query
+    org (string): organism to query
+    n (int): number of matches to fetch
+    temp_path (string): path to save temp file
+    """
+    esearch = 'esearch -db sra -query "{}[strategy] AND {}[organism]"'.format(
+        strat, org)
+    efetch = 'efetch -db sra -format docsum -stop {}'.format(str(n))
+    query = esearch + ' | ' + efetch + ' > ' + temp_path
+
+    subprocess.call(query, shell=True)
 
 
 def parse_xml(filename, n):
@@ -185,12 +203,12 @@ def parse_xml(filename, n):
     else:
         return srrs[:n]
 
-def remove_temp():
-    files = os.listdir()
+def remove_temp(temp_path):
+    files = os.listdir(temp_path)
     if "neg.xml" in files:
-        os.remove('neg.xml')
+        os.remove(os.path.join(temp_path,'neg.xml'))
     if "pos.xml" in files:
-        os.remove('pos.xml')
+        os.remove(os.path.join(temp_path,'pos.xml'))
 
 def validate_dirs(out):
     try:
@@ -207,4 +225,4 @@ def validate_dirs(out):
         pass
 
 if __name__ == '__main__':
-    main(sys.argv)
+    main()
