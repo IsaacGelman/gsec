@@ -1,5 +1,3 @@
-# Importing Stuff
-
 import pandas as pd
 import numpy as np
 import sklearn
@@ -12,13 +10,10 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
 from sklearn.linear_model import Lasso
 
-
-
-
 def file_shell(df,fname,ind):
-    '''
+    """
     helper function to append new data
-    '''
+    """
     df1 = pd.read_csv(fname, sep='\t', header=None)
     df1.set_index(0, inplace=True)
     df2 = df1.transpose()
@@ -28,7 +23,7 @@ def file_shell(df,fname,ind):
 
 
 def normalize(df, maxk):
-    '''
+    """
     function: normalize
     Normalizes a counts dataframe
 
@@ -40,7 +35,7 @@ def normalize(df, maxk):
     Needs to be modified to take a list of "k" values
     in the future after the regularization step is
     complete
-    '''
+    """
     start_i = 0
     for k in range(1, maxk+1):
         end_i = start_i + 4**k #end index
@@ -48,15 +43,14 @@ def normalize(df, maxk):
             df.iloc[:,start_i:end_i].sum(axis=1), axis='rows')
 
         start_i = end_i
-   
 
 
 def main():
-    '''
+    """
     function main()
 
     loads data from rna-seq and wgs_human folders
-    '''
+    """
     df = pd.DataFrame()
     
     basepath_bs = 'data/rna-seq'
@@ -66,8 +60,7 @@ def main():
             l_entries = Path(b_entry)
             for l_entry in l_entries.iterdir():
                 if os.stat(l_entry).st_size != 0:
-                    df = file_shell(df,l_entry,0)
-    
+                    df = file_shell(df,l_entry,0)    
 
     basepath_bs = 'data/wgs_human'                   
     b_entries = Path(basepath_bs)
@@ -105,6 +98,7 @@ def main():
     with open("model.pkl", "wb") as file:
         pickle.dump(lasso_model, file)
         print("saved model as model.pkl")
+
 
 if __name__ == "__main__":
     main()

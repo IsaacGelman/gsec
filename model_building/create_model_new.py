@@ -25,49 +25,53 @@ model_dir = os.path.dirname(os.path.realpath(__file__))
 data_dir = os.path.join(model_dir, 'genomics_data')
 
 
-''' Assumption made on file directories:
- model.py is in the same directory as genomics_data folder '''
+"""Assumption made on file directories:
+ model.py is in the same directory as genomics_data folder """
 
-# Checking directories
+
 def dir_check():
+    """
+    Check directories
+    """    
     print("model directory: ", model_dir)
     print("data directory: ", data_dir)
 
-# Append experiment of name "fname" to dataframe
-def file_shell(df,fname,ind):
-      df_new = pd.read_csv(fname, sep='\t', header=None)
-      df_new.set_index(0, inplace=True)
-      df_new = df_new.transpose()
-      df_new.index = [ind]
-      return df.append(df_new)
 
-# Function for loading a certain type of data
+def file_shell(df,fname,ind):          
+    """
+    Append experiment of name "fname" to dataframe
+    """
+    df_new = pd.read_csv(fname, sep='\t', header=None)
+    df_new.set_index(0, inplace=True)
+    df_new = df_new.transpose()
+    df_new.index = [ind]
+    return df.append(df_new)
+
+
 def load_data(data_name, df):
+    """
+    Function loads a certain type of data
+    for each experiment, call file_shell
+    file_shell returns a dataframe with 
+    kmer data of most recent experiment
+    appended to it
+    """
     counter = 0
     SRPs = Path(os.path.join(data_dir, data_name))
     for project in SRPs.iterdir():
         if project.is_dir():
             experiment_list = Path(os.path.join(SRPs, project))
-            #print(project)
             for experiment in experiment_list.iterdir():
-                #print(experiment)
                 counter += 1
                 if os.stat(experiment).st_size != 0:
                     df = file_shell(df, experiment, 1)
-    #print("counter: ", counter)
     return df
 
-# for each experiment, call file_shell
-# file_shell returns a dataframe with kmer data of most recent experiment
-# appended to it
-
-
-# Main function
 
 def main():
     start_time = time.time()
     df = pd.DataFrame()
-    #dir_check()
+    # dir_check()
     df = load_data("rna-seq", df)
     df = load_data("wgs_human", df)
 
@@ -80,7 +84,6 @@ def main():
     print("Average loading time: %f seconds per experiment" % avg)
     print("Experiments to be processed per minute: %f" % exp_per_min)
     print(df.shape)
-
 
 
 if __name__ == "__main__":
