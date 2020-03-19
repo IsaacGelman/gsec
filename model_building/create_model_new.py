@@ -1,6 +1,6 @@
 # create_model_new.py: This script takes an input of the data types
 # from the query, creates a dataframe with the two datasets, and
-# trains models to classify the two datatypes 
+# trains models to classify the two datatypes
 #
 # Authors: Nicolas Perez, Isaac Gelman, Natalie Abreu, Shannon Brownlee,
 # Tomas Angelini, Laura Cao, Shreya Havaldar
@@ -183,8 +183,9 @@ def efficiency_check(first_data_type, second_data_type, kmer_list, n):
     print("Experiments to be processed per minute: %f" % exp_per_min)
 
 def main():
-    efficiency_check("rna-seq", "wgs_human", [1,2,3,4,5,6], 10)
-
+    #efficiency_check("rna-seq", "wgs_human", [1,2,3,4,5,6], 10)
+    df_test = pd.DataFrame()
+    §
 
 if __name__ == "__main__":
     main()
