@@ -24,6 +24,7 @@ from sklearn.linear_model import Lasso
 from sklearn import linear_model
 import time
 from glob import glob
+from create_model_utils import create_dataframe
 
 # file paths and names
 model_dir = os.path.dirname(os.path.realpath(__file__))
@@ -33,43 +34,14 @@ existing_models = glob(model_dir + '*.pkl')
 model_filename = model_dir + 'model%d.pkl' % (len(existing_models) + 1)
 
 
-''' Assumption made on file directories:
- model.py is in the same directory as genomics_data folder '''
-
-# function to check directories
-def dir_check():
-    print("model directory: ", model_dir)
-    print("data directory: ", data_dir)
-
-# function to append experiment of name "fname" to dataframe
-def file_shell(df,fname,ind):
-      df_new = pd.read_csv(fname, sep='\t', header=None)
-      df_new.set_index(0, inplace=True)
-      df_new = df_new.transpose()
-      df_new.index = [ind]
-      return df.append(df_new)
-
-# function for loading a certain type of data
-def load_data(data_name, df, label):
-    counter = 0
-    SRPs = Path(os.path.join(data_dir, data_name))
-    for project in SRPs.iterdir():
-        if project.is_dir():
-            experiment_list = Path(os.path.join(SRPs, project))
-            #print(project)
-            for experiment in experiment_list.iterdir():
-                #print(experiment)
-                counter += 1
-                if os.stat(experiment).st_size != 0:
-                    df = file_shell(df, experiment, label)
-    #print("counter: ", counter)
-    return df
-
 # function to normalize data
 def normalize(df, maxk):
   start_index = 0
   for k in range(1,maxk+1):
-    df.iloc[:,start_index:start_index+4**k] = df.iloc[:,start_index:start_index+4**k].div(df.iloc[:,start_index:start_index+4**k].sum(axis=1), axis='rows')
+    df.iloc[:,start_index:start_index+4**k] = \
+    df.iloc[:,start_index:start_index+4**k].div(
+        df.iloc[:,start_index:start_index+4**k].sum(axis=1), axis='rows')
+
     start_index = start_index+4**k
 
 # function for creating and saving model
@@ -85,8 +57,9 @@ def create_model(df, fpath1, fpath2, maxk):
 
     # split train and test
     y = df.index
-    X_train, X_test, y_train, y_test = train_test_split(df.reset_index(drop=True), y, test_size=0.25, shuffle=True,
-                                                        stratify=y)
+    X_train, X_test, y_train, y_test = train_test_split(
+        df.reset_index(drop=True), y, test_size=0.25, shuffle=True,
+                       stratify=y)
 
     # init dictionaries
     model_scores = {}
@@ -111,7 +84,10 @@ def create_model(df, fpath1, fpath2, maxk):
 
     # knn
     base_knn = neighbors.KNeighborsClassifier()
-    parameters = {'n_neighbors': [1, 2, 5, 10, 15, 25], 'weights': ['uniform', 'distance']}
+    parameters = {
+        'n_neighbors': [1, 2, 5, 10, 15, 25],
+        'weights': ['uniform', 'distance']
+        }
 
     knn = GridSearchCV(base_knn, parameters, cv=3)
     print(cross_val_score(knn, X_train, y_train, cv=3))
@@ -149,7 +125,11 @@ def create_model(df, fpath1, fpath2, maxk):
 
     # random forest
     base_rf = RandomForestClassifier(n_estimators=50)
-    parameters = {'bootstrap': [True], 'max_depth': [90, 100], 'n_estimators': [50, 100, 200]}
+    parameters = {
+        'bootstrap': [True],
+         'max_depth': [90, 100],
+          'n_estimators': [50, 100, 200]
+    }
 
     rf = GridSearchCV(base_rf, parameters, cv=3)
     print(cross_val_score(rf, X_train, y_train, cv=3))
@@ -166,7 +146,11 @@ def create_model(df, fpath1, fpath2, maxk):
     model_types['forest'] = rf
 
     # ensemble
-    eclf = VotingClassifier(estimators=[('gnb', gnb), ('lr', log_reg), ('rf', rf)], voting='soft')
+    eclf = VotingClassifier(estimators=[
+        ('gnb', gnb),
+        ('lr', log_reg),
+        ('rf', rf)],
+        voting='soft')
 
     print(cross_val_score(eclf, X_train, y_train, cv=3))
     eclf.fit(X_train, y_train)
@@ -212,26 +196,3 @@ def create_model(df, fpath1, fpath2, maxk):
         pickle.dump(model_types[model_type_string], file)
 
     return df
-
-
-# Main function
-
-def main():
-    start_time = time.time()
-    df = pd.DataFrame()
-    df = create_model(df,"rna-seq", "wgs_human", 6)
-
-    end_time = float(time.time() - start_time)
-    num_experiments = float(len(df.index))
-    avg = end_time / num_experiments
-    exp_per_min = 1 / avg * 60
-
-
-    print("Average loading time: %f seconds per experiment" % avg)
-    print("Experiments to be processed per minute: %f" % exp_per_min)
-    print(df.shape)
-
-
-
-if __name__ == "__main__":
-    main()

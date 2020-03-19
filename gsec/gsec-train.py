@@ -69,7 +69,7 @@ def main():
                         help='output directory')
     parser.add_argument('-n', '--num-files', dest="num_files",
                         type=int, required=True,
-                        help='number of files for...')
+                        help='number of files to count from each set')
     args = parser.parse_args()
 
     # Check if there are temp files from last run
