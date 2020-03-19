@@ -1,4 +1,44 @@
-# Importing Stuff
+# create_model_new.py: This script takes an input of the data types
+# from the query, creates a dataframe with the two datasets, and
+# trains models to classify the two datatypes 
+#
+# Authors: Nicolas Perez, Isaac Gelman, Natalie Abreu, Shannon Brownlee,
+# Tomas Angelini, Laura Cao, Shreya Havaldar
+#
+# This software is Copyright (C) 2020 The University of Southern
+# California. All Rights Reserved.
+#
+# Permission to use, copy, modify, and distribute this software and
+# its documentation for educational, research and non-profit purposes,
+# without fee, and without a written agreement is hereby granted,
+# provided that the above copyright notice, this paragraph and the
+# following three paragraphs appear in all copies.
+#
+# Permission to make commercial use of this software may be obtained
+# by contacting:
+#
+# USC Stevens Center for Innovation
+# University of Southern California
+# 1150 S. Olive Street, Suite 2300
+# Los Angeles, CA 90115, USA
+#
+# This software program and documentation are copyrighted by The
+# University of Southern California. The software program and
+# documentation are supplied "as is", without any accompanying
+# services from USC. USC does not warrant that the operation of the
+# program will be uninterrupted or error-free. The end-user
+# understands that the program was developed for research purposes and
+# is advised not to rely exclusively on the program for any reason.
+#
+# IN NO EVENT SHALL THE UNIVERSITY OF SOUTHERN CALIFORNIA BE LIABLE TO
+# ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR
+# CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF THE
+# USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF THE UNIVERSITY
+# OF SOUTHERN CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
+# DAMAGE. THE UNIVERSITY OF SOUTHERN CALIFORNIA SPECIFICALLY DISCLAIMS
+# ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE. THE SOFTWARE PROVIDED
 
 import pandas as pd
 import numpy as nump
@@ -72,7 +112,7 @@ def file_shell(df,proj,fname, kmer_count, label):
         error_file.close()
         return df
     else:
-        df_new.set_index(0, inplace=True)
+        df_new.set_index(0, inplace=True) # check if useless
         df_new = df_new.transpose()
         df_new.index = [label]
         return df.append(df_new)
