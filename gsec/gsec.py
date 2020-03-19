@@ -55,18 +55,12 @@ def main():
             k_vals = row[3]
             classifier = row[4]
     
-    print(model_pkl, k_vals, classifier)
-
+    # open model
     with open(model_pkl, 'rb') as model_pkl:
-        model = pickle.load(model_pkl)   
+        model = pickle.load(model_pkl)  
 
-    print(model)
-    print(file)
-
-    out = os.path.join(ROOT, 'gsec')
-    print(out)
-    # subprocess.call("cat " + count(3, 1000, file, out), shell=True)
-
+    # count kmers and create dataframe with result
+    out = os.path.join(ROOT, 'temp')
     df = pd.DataFrame()
     
     basepath_bs = count(6, 1000, file, out)
@@ -82,11 +76,9 @@ def main():
     print(result)
     
 
-    return
+    return 0; # success
 
     
-
-
 def count(k, limit, fastq, out):
     """
     k (int): max kmer to count
@@ -94,8 +86,6 @@ def count(k, limit, fastq, out):
     fastq (str): fastq file for read
     out (str): directory to save files
     """
-
-    print(ROOT)
 
     # check if stream_kmers is compiled
     if ('stream_kmers') not in os.listdir(os.path.join(ROOT, 'utils')):
@@ -109,9 +99,9 @@ def count(k, limit, fastq, out):
         subprocess.call(comp, shell=True)
 
     # shell commands to run
-    filename = os.path.join("../temp", '{}.txt'.format(fastq[:-6]))
-    count_path = os.path.join("..", 'utils', 'stream_kmers')
-    fastq = os.path.join("..", 'utils', fastq)
+    filename = os.path.join(out, '{}.txt'.format(fastq[:-6]))
+    count_path = os.path.join(ROOT, 'utils', 'stream_kmers')
+    fastq = os.path.join(ROOT, 'utils', fastq)
     count = "{} {} {} > {}".format(count_path,
                                      str(k),
                                      str(limit),
