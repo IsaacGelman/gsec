@@ -78,7 +78,7 @@ def file_shell(df,proj,fname, kmer_count, label):
         return df.append(df_new)
 
 
-def load_data(data_name, df, kmer_count):
+def load_data(data_name, df, kmer_count, label):
     """
     Function loads a certain type of data
     for each experiment, call file_shell
@@ -94,7 +94,7 @@ def load_data(data_name, df, kmer_count):
             for experiment in experiment_list.iterdir():
                 #print("Current exp: %s" % experiment)
                 if os.stat(experiment).st_size != 0:
-                    df = file_shell(df, project, experiment, kmer_count, 1)
+                    df = file_shell(df, project, experiment, kmer_count, label)
                 else:
                     #print("ERROR FOUND IN FILE %s" % experiment)
                     error_file = open("errors.txt", "a+")
@@ -111,8 +111,8 @@ def create_dataframe(first_data_type, second_data_type, kmer_list):
     clear_errors()
     df = pd.DataFrame()
     kmer_count = calculate_dimension(kmer_list)
-    df = load_data(first_data_type, df, kmer_count)
-    df = load_data(second_data_type, df, kmer_count)
+    df = load_data(first_data_type, df, kmer_count, 0)
+    df = load_data(second_data_type, df, kmer_count, 1)
     return df
 
 def efficiency_check(first_data_type, second_data_type, kmer_list, n):
@@ -136,8 +136,8 @@ def efficiency_check(first_data_type, second_data_type, kmer_list, n):
         abs_avg += avg
         abs_exp_per_min += exp_per_min
 
-    abs_avg = abs_avg / 100
-    abs_exp_per_min = abs_exp_per_min / 100
+    abs_avg = abs_avg / n
+    abs_exp_per_min = abs_exp_per_min / n
 
     print("Average loading time: %f seconds per experiment" % avg)
     print("Experiments to be processed per minute: %f" % exp_per_min)
