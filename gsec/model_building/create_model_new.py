@@ -104,8 +104,7 @@ def file_shell(df,proj,fname, kmer_count, label):
     appropriate number of kmers, don't append.
     """
     df_new = pd.read_csv(fname, sep='\t', header=None)
-    #df_new.rename(columns={"0": "kmer", "1":"freq"})
-    #print(df_new.head())
+
     # case 1: kmer counts are missing
     if ((df_new.shape)[0] != kmer_count):
         error_file = open("errors.txt", "a+")
@@ -145,12 +144,10 @@ def load_data(data_name, df, kmer_count, label):
         if project.is_dir():
             experiment_list = Path(os.path.join(SRPs, project))
             for experiment in experiment_list.iterdir():
-                #print("Current exp: %s" % experiment)
                 extension = experiment.suffix
                 if os.stat(experiment).st_size != 0 and extension == '.txt':
                     df = file_shell(df, project, experiment, kmer_count, label)
                 else:
-                    #print("ERROR FOUND IN FILE %s" % experiment)
                     error_file = open("errors.txt", "a+")
                     error_file.write("\r%s, %s, empty_file" % (project.name,
                     experiment.name))
@@ -195,12 +192,3 @@ def efficiency_check(first_data_type, second_data_type, kmer_list, n):
 
     print("Average loading time: %f seconds per experiment" % avg)
     print("Experiments to be processed per minute: %f" % exp_per_min)
-
-def main():
-    #efficiency_check("rna-seq", "wgs_human", [1,2,3,4,5,6], 10)
-    df_test = pd.DataFrame()
-    df_test = create_dataframe("rna-seq", "wgs_human", [1,2,3,4,5,6])
-    print(df_test)
-
-if __name__ == "__main__":
-    main()
