@@ -16,7 +16,8 @@ setuptools.setup(
 	}
 	author="Isaac Gelman, Nicolas Perez, Natalie Abreu, Shannon Brownlee, \
 	Tomas Angelini, Laura Cao, Shreya Havaldar",
-	description="Command line tool for computational genomics",
+	description="Automated, generalizable model building tool \
+	for the Sequence Read Archive",
 	long_description=long_description,
 	url="https://github.com/gelman-usc/gsec",
 	packages=setuptools.find_packages(),
