@@ -16,17 +16,20 @@ On its own, stream_kmers takes two parameters: the first parameter is the k valu
 
 In a pipeline, usage looks like this: `fastq-dump --skip-technical --split-spot -Z SRR5149059 | ./stream_kmers 6 100 > out.txt` to count k=6 and with a limit of 100 reads. The specific SRR provided is downloaded but never saved and only the counts file is saved. If you already have an `.sra` file you can run it on that as well. Streaming gives a speed boost in both scenarios.
 
-# gsec.py usage
+# gsec-train.py usage
 This script will query SRRs that match the specified fields and count the kmers up to the specified k value. It will then save count files to a given directory.
 
 
-`python gsec.py positive_strategy positive_organism negative_strategy negative_organism k lim_reads out_directory num_files`
-- positive: class to identify as positive (e.g. rna-seq on homo sapiens)
-- negative: class to identify as negative
-- k: max kmer to count
-- limit: limit of reads per srr
-- out_directory: directory to save count files
-- num_files: number of srrs to count for each target (if there are less files that match the query, the maximum amount of files matched will be downloaded)
+`python gsec-train.py --pos-strat --pos-org --neg-strat --neg-org -k -l -o -n`
+- pos-strat: strategy for positive set
+- pos-org: organism for positive set
+- neg-strat: strategy for negative set
+- neg-org: organism for negative set
+- k: maximum size of kmer to count
+- l: limit number of reads to use
+- o: directory path to save count files
+- n: number of srrs to count for each target (if there are less files that match the query, the maximum amount of files matched will be downloaded)
 
 Example:
-`python gsec.py rna-seq "homo sapiens" wgs "homo sapiens" 6 100 ~/project/data 100`
+`python gsec-train.py --pos-strat rna-seq --pos-org 'homo sapiens' --neg-strat wgs --neg-org 'homo sapiens' -k 3 -l 20 -o 'data/' -n 10
+`
