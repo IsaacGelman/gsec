@@ -185,7 +185,7 @@ def efficiency_check(first_data_type, second_data_type, kmer_list, n):
 def main():
     #efficiency_check("rna-seq", "wgs_human", [1,2,3,4,5,6], 10)
     df_test = pd.DataFrame()
-    §
+    
 
 if __name__ == "__main__":
     main()
