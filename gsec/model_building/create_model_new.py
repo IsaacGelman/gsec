@@ -104,18 +104,30 @@ def file_shell(df,proj,fname, kmer_count, label):
     appropriate number of kmers, don't append.
     """
     df_new = pd.read_csv(fname, sep='\t', header=None)
-
+    #df_new.rename(columns={"0": "kmer", "1":"freq"})
+    print(df_new.head())
+    # case 1: kmer counts are missing
     if ((df_new.shape)[0] != kmer_count):
         error_file = open("errors.txt", "a+")
         error_file.write("\r%s, %s, missing_kmers" % (proj.name,
                         fname.name))
         error_file.close()
         return df
+    # case 2: all kmer counts are 0
+    elif ((df['1'] == 0).all()):
+        error_file = open("errors.txt", "a+")
+        error_file.write("\r%s, %s, kmers_zeros" % (proj.name,
+                        fname.name))
+        error_file.close()
+        return df
     else:
-        df_new.set_index(0, inplace=True) # check if useless
+    # case 3: correct read
+        df_new.set_index(0, inplace=True)
         df_new = df_new.transpose()
         df_new.index = [label]
         return df.append(df_new)
+
+
 
 
 def load_data(data_name, df, kmer_count, label):
@@ -133,7 +145,8 @@ def load_data(data_name, df, kmer_count, label):
             experiment_list = Path(os.path.join(SRPs, project))
             for experiment in experiment_list.iterdir():
                 #print("Current exp: %s" % experiment)
-                if os.stat(experiment).st_size != 0:
+                extension = experiment.suffix
+                if os.stat(experiment).st_size != 0 and extension == '.txt':
                     df = file_shell(df, project, experiment, kmer_count, label)
                 else:
                     #print("ERROR FOUND IN FILE %s" % experiment)
@@ -185,7 +198,8 @@ def efficiency_check(first_data_type, second_data_type, kmer_list, n):
 def main():
     #efficiency_check("rna-seq", "wgs_human", [1,2,3,4,5,6], 10)
     df_test = pd.DataFrame()
-    
+    df_test = create_dataframe("rna-seq", "wgs_human", [1,2,3,4,5,6])
+    #print(df_test)
 
 if __name__ == "__main__":
     main()
