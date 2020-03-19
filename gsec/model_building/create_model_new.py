@@ -105,7 +105,7 @@ def file_shell(df,proj,fname, kmer_count, label):
     """
     df_new = pd.read_csv(fname, sep='\t', header=None)
     #df_new.rename(columns={"0": "kmer", "1":"freq"})
-    print(df_new.head())
+    #print(df_new.head())
     # case 1: kmer counts are missing
     if ((df_new.shape)[0] != kmer_count):
         error_file = open("errors.txt", "a+")
@@ -113,13 +113,14 @@ def file_shell(df,proj,fname, kmer_count, label):
                         fname.name))
         error_file.close()
         return df
+
     # case 2: all kmer counts are 0
-    elif ((df['1'] == 0).all()):
-        error_file = open("errors.txt", "a+")
-        error_file.write("\r%s, %s, kmers_zeros" % (proj.name,
-                        fname.name))
-        error_file.close()
-        return df
+    elif (df_new.iloc[:, 1].sum() == 0):
+            error_file = open("errors.txt", "a+")
+            error_file.write("\r%s, %s, kmers_zeros" % (proj.name,
+                            fname.name))
+            error_file.close()
+            return df
     else:
     # case 3: correct read
         df_new.set_index(0, inplace=True)
@@ -199,7 +200,7 @@ def main():
     #efficiency_check("rna-seq", "wgs_human", [1,2,3,4,5,6], 10)
     df_test = pd.DataFrame()
     df_test = create_dataframe("rna-seq", "wgs_human", [1,2,3,4,5,6])
-    #print(df_test)
+    print(df_test)
 
 if __name__ == "__main__":
     main()
