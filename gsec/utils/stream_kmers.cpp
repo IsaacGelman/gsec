@@ -169,7 +169,7 @@ int main(int argc, const char * const argv[]) {
 
     std::set<int> k_vals;
 
-    // creates set of k values the program will count kmers od
+    // creates set of k values the program will count kmers of
     // if specific set of k_values
     if (argc == 4) {
       std::ifstream ifile_kmers(argv[3]);
@@ -264,19 +264,19 @@ int main(int argc, const char * const argv[]) {
       line_count++;
     }
 
-    // output summary
-    cout << "final reads count: " << reads_count << endl;
-      string end = "???";
-      if (!getline(cin, line)) {
-        end = "reached end of file";
-      }
-      else if (reads_count >= limit) {
-        end = "reached limit";
-      }
-      else if(converge) {
-        end = "kmer frequencies converged";
-    }
-    cout << "ended because: " << end << endl;
+    // // output summary
+    // cout << "final reads count: " << reads_count << endl;
+    //   string end = "???";
+    //   if (!getline(cin, line)) {
+    //     end = "reached end of file";
+    //   }
+    //   else if (reads_count >= limit) {
+    //     end = "reached limit";
+    //   }
+    //   else if(converge) {
+    //     end = "kmer frequencies converged";
+    // }
+    // cout << "ended because: " << end << endl;
     
     // print total counts & frequencies
     index = 0;
@@ -285,25 +285,22 @@ int main(int argc, const char * const argv[]) {
       string k_mer_sequence;
       k_mer_sequence.resize(*it); // avoid re-allocating space
 
-      cout << "total " << (*it) << "-mers: " << the_counters[index]->total_kmers << endl;
+      // cout << "total " << (*it) << "-mers: " << the_counters[index]->total_kmers << endl;
       
-      for (size_t j = 0; j < the_counters[index]->n_kmers; ++j) {
-        decode_kmer_inplace(index, j, k_mer_sequence);
-        cout << k_mer_sequence << '\t' << counts[index][j] << '\n';
-      }
+      // for (size_t j = 0; j < the_counters[index]->n_kmers; ++j) {
+      //   decode_kmer_inplace(index, j, k_mer_sequence);
+      //   cout << k_mer_sequence << '\t' << counts[index][j] << '\n';
+      // }
 
-      cout << endl;
+      // cout << endl;
 
-      double freq_sum = 0;
-      cout << "frequencies: " << endl;
+      // cout << "frequencies: " << endl;
       for (size_t j = 0; j < the_counters[index]->n_kmers; ++j) {
         decode_kmer_inplace(index, j, k_mer_sequence);
         cout << k_mer_sequence << '\t' << freqs[index][j] << '\n';
-        freq_sum+= freqs[index][j];
       }
-      cout << endl;
+      // cout << endl;
 
-      cout << "adds to: " << freq_sum << endl;
       index++;
     }
     
