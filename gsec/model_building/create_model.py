@@ -24,7 +24,6 @@ from sklearn.linear_model import Lasso
 from sklearn import linear_model
 import time
 from glob import glob
-from create_model_utils import create_dataframe
 
 # file paths and names
 model_dir = os.path.dirname(os.path.realpath(__file__))
@@ -45,11 +44,7 @@ def normalize(df, maxk):
     start_index = start_index+4**k
 
 # function for creating and saving model
-def create_model(df, fpath1, fpath2, maxk):
-
-    # load data into df
-    df = load_data(fpath1, df, 0)
-    df = load_data(fpath2, df, 1)
+def create_model(df, maxk):
 
     # normalize
     normalize(df,maxk)

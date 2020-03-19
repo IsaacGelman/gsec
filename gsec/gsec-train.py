@@ -46,6 +46,8 @@ import sys, os, argparse
 import subprocess
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import ParseError
+from model_building.create_model_utils import create_dataframe
+
 ROOT = os.path.dirname(os.getcwd())
 
 def main():
@@ -73,7 +75,7 @@ def main():
     args = parser.parse_args()
 
     # Check if there are temp files from last run
-    remove_temp(os.path.join(ROOT, 'utils'))
+    remove_temp(os.path.join(ROOT,'gsec', 'utils'))
 
     # Get positive and negative strings
     pos_strat = args.pos_strat
@@ -87,23 +89,23 @@ def main():
     n = args.num_files
 
     # Queries
-    query(pos_strat, pos_org, n, os.path.join(ROOT, 'utils', 'pos.xml'))
-    query(pos_strat, pos_org, n, os.path.join(ROOT, 'utils', 'neg.xml'))
+    query(pos_strat, pos_org, n, os.path.join(ROOT, 'gsec','utils', 'pos.xml'))
+    query(pos_strat, pos_org, n, os.path.join(ROOT, 'gsec','utils', 'neg.xml'))
 
     # get srrs
-    pos_srrs = parse_xml(os.path.join(ROOT, 'utils', 'pos.xml'), n)
+    pos_srrs = parse_xml(os.path.join(ROOT, 'gsec', 'utils', 'pos.xml'), n)
     if len(pos_srrs) == 0:
         print('{}, {} returned no matches...'.format(pos_strat, pos_org))
         return 1
 
 
-    neg_srrs = parse_xml(os.path.join(ROOT, 'utils', 'neg.xml'), n)
+    neg_srrs = parse_xml(os.path.join(ROOT, 'gsec', 'utils', 'neg.xml'), n)
     if len(neg_srrs) == 0:
         print('{}, {} returned no matches...'.format(neg_strat, neg_org))
         return 1
 
     # delete temp srr files
-    remove_temp(os.path.join(ROOT, 'utils'))
+    remove_temp(os.path.join(ROOT,'gsec', 'utils'))
 
     # validate directories to save files
     validate_dirs(out)
@@ -125,9 +127,15 @@ def main():
 
     print("Done counting!")
 
-    # TODO
-    # Call functions from create_model.py and save model to appropriate folder
-
+    # create dataframe from count files
+    # TODO: alter names of data directories and ask for list of kmers
+    df = create_dataframe(
+        out, 
+        "positive",
+        "negative",
+        [i for i in range(1, k+1)]
+    )
+    print(df)
     return 0
 
 
@@ -139,7 +147,7 @@ def count(k, limit, srr, out):
     out (str): directory to save files
     """
     # check if stream_kmers is compiled
-    if ('stream_kmers') not in os.listdir(os.path.join(ROOT, 'utils')):
+    if ('stream_kmers') not in os.listdir(os.path.join(ROOT, 'gsec', 'utils')):
         # compile
         comp = 'g++ {} -o {}'.format(
             os.path.join(ROOT, 'utils', 'stream_kmers.cpp'),
@@ -151,7 +159,7 @@ def count(k, limit, srr, out):
 
     # shell commands to run
     filename = os.path.join(out, '{}.txt'.format(srr))
-    count_path = os.path.join(ROOT, 'utils', 'stream_kmers')
+    count_path = os.path.join(ROOT, 'gsec','utils', 'stream_kmers')
     fastq = "fastq-dump --skip-technical --split-spot -Z {}".format(srr)
     count = "{} {} {} > {}".format(count_path,
                                      str(k),

@@ -130,7 +130,7 @@ def file_shell(df,proj,fname, kmer_count, label):
 
 
 
-def load_data(data_name, df, kmer_count, label):
+def load_data(data_name, df, kmer_count, label, data_dir):
     """
     Function loads a certain type of data
     for each experiment, call file_shell
@@ -153,7 +153,7 @@ def load_data(data_name, df, kmer_count, label):
                     experiment.name))
     return df
 
-def create_dataframe(first_data_type, second_data_type, kmer_list):
+def create_dataframe(data_dir, first_data_type, second_data_type, kmer_list):
     """
     Function takes inputs the two data types to create the
     dataset from (e.g. wgs vs. rna), and returns a dataframe
@@ -162,8 +162,8 @@ def create_dataframe(first_data_type, second_data_type, kmer_list):
     clear_errors()
     df = pd.DataFrame()
     kmer_count = calculate_dimension(kmer_list)
-    df = load_data(first_data_type, df, kmer_count, 0)
-    df = load_data(second_data_type, df, kmer_count, 1)
+    df = load_data(first_data_type, df, kmer_count, 0, data_dir)
+    df = load_data(second_data_type, df, kmer_count, 1, data_dir)
     return df
 
 def efficiency_check(first_data_type, second_data_type, kmer_list, n):
