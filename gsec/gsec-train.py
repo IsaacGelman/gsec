@@ -49,7 +49,7 @@ from xml.etree.ElementTree import ParseError
 ROOT = os.path.dirname(os.getcwd())
 
 def main():
-    print('python gsec.py pos_strat pos_org neg_strat neg_org \
+    print('python gsec-train.py pos_strat pos_org neg_strat neg_org \
     max_k limit_reads out_dir num_files')
 
     parser = argparse.ArgumentParser(description='prepare project config')
