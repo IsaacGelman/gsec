@@ -29,12 +29,13 @@ data_dir = os.path.join(model_dir, 'genomics_data')
  this script is in the same directory as genomics_data folder """
 
 def clear_errors():
-    '''
-    clear previous errors from file so only new errors from current run
+    """
+    Clear previous errors from file so only new errors from current run
     are recorded
-    '''
+    """
     error_file = open("errors.txt", "w+")
     error_file.write("project_name, file_name, error_type")
+    error_file.close()
 
 def dir_check():
     """
@@ -44,11 +45,11 @@ def dir_check():
     print("data directory: ", data_dir)
 
 def calculate_dimension(kmer_list):
-    '''
+    """
     Function takes list of kmers chosen for the dataset
     and calculates how many rows the corresponding txt files
     should have when processing
-    '''
+    """
     total_count = 0
     for i in kmer_list:
         total_count += pow(4,i)
@@ -56,25 +57,24 @@ def calculate_dimension(kmer_list):
     return total_count
 
 
-def file_shell(df,proj,fname, kmer_count, ind):
+def file_shell(df,proj,fname, kmer_count, label):
     """
     Append experiment of name "fname" to dataframe
+    If number of rows in txt file doesn't match
+    appropriate number of kmers, don't append.
     """
     df_new = pd.read_csv(fname, sep='\t', header=None)
-
-    '''
-    If number of rows in txt file doesn't match number of kmers, don't append
-    '''
 
     if ((df_new.shape)[0] != kmer_count):
         error_file = open("errors.txt", "a+")
         error_file.write("\r%s, %s, missing_kmers" % (proj.name,
-        fname.name))
+                        fname.name))
+        error_file.close()
         return df
     else:
         df_new.set_index(0, inplace=True)
         df_new = df_new.transpose()
-        df_new.index = [ind]
+        df_new.index = [label]
         return df.append(df_new)
 
 
@@ -103,11 +103,11 @@ def load_data(data_name, df, kmer_count):
     return df
 
 def create_dataframe(first_data_type, second_data_type, kmer_list):
-    '''
+    """
     Function takes inputs the two data types to create the
     dataset from (e.g. wgs vs. rna), and returns a dataframe
     with the kmer counts of both datatypes
-    '''
+    """
     clear_errors()
     df = pd.DataFrame()
     kmer_count = calculate_dimension(kmer_list)
@@ -116,10 +116,10 @@ def create_dataframe(first_data_type, second_data_type, kmer_list):
     return df
 
 def efficiency_check(first_data_type, second_data_type, kmer_list, n):
-    '''
+    """
     Function runs the dataframe creation process n times and generates
     average runtime stats
-    '''
+    """
     abs_avg = 0
     abs_exp_per_min = 0
 
