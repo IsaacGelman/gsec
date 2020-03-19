@@ -1,4 +1,44 @@
-# Importing Stuff
+# create_model_new.py: This script takes an input of the data types
+# from the query, creates a dataframe with the two datasets, and
+# trains models to classify the two datatypes
+#
+# Authors: Nicolas Perez, Isaac Gelman, Natalie Abreu, Shannon Brownlee,
+# Tomas Angelini, Laura Cao, Shreya Havaldar
+#
+# This software is Copyright (C) 2020 The University of Southern
+# California. All Rights Reserved.
+#
+# Permission to use, copy, modify, and distribute this software and
+# its documentation for educational, research and non-profit purposes,
+# without fee, and without a written agreement is hereby granted,
+# provided that the above copyright notice, this paragraph and the
+# following three paragraphs appear in all copies.
+#
+# Permission to make commercial use of this software may be obtained
+# by contacting:
+#
+# USC Stevens Center for Innovation
+# University of Southern California
+# 1150 S. Olive Street, Suite 2300
+# Los Angeles, CA 90115, USA
+#
+# This software program and documentation are copyrighted by The
+# University of Southern California. The software program and
+# documentation are supplied "as is", without any accompanying
+# services from USC. USC does not warrant that the operation of the
+# program will be uninterrupted or error-free. The end-user
+# understands that the program was developed for research purposes and
+# is advised not to rely exclusively on the program for any reason.
+#
+# IN NO EVENT SHALL THE UNIVERSITY OF SOUTHERN CALIFORNIA BE LIABLE TO
+# ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR
+# CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF THE
+# USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF THE UNIVERSITY
+# OF SOUTHERN CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
+# DAMAGE. THE UNIVERSITY OF SOUTHERN CALIFORNIA SPECIFICALLY DISCLAIMS
+# ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE. THE SOFTWARE PROVIDED
 
 import pandas as pd
 import numpy as nump
@@ -29,12 +69,13 @@ data_dir = os.path.join(model_dir, 'genomics_data')
  this script is in the same directory as genomics_data folder """
 
 def clear_errors():
-    '''
-    clear previous errors from file so only new errors from current run
+    """
+    Clear previous errors from file so only new errors from current run
     are recorded
-    '''
+    """
     error_file = open("errors.txt", "w+")
     error_file.write("project_name, file_name, error_type")
+    error_file.close()
 
 def dir_check():
     """
@@ -44,11 +85,11 @@ def dir_check():
     print("data directory: ", data_dir)
 
 def calculate_dimension(kmer_list):
-    '''
+    """
     Function takes list of kmers chosen for the dataset
     and calculates how many rows the corresponding txt files
     should have when processing
-    '''
+    """
     total_count = 0
     for i in kmer_list:
         total_count += pow(4,i)
@@ -56,29 +97,28 @@ def calculate_dimension(kmer_list):
     return total_count
 
 
-def file_shell(df,proj,fname, kmer_count, ind):
+def file_shell(df,proj,fname, kmer_count, label):
     """
     Append experiment of name "fname" to dataframe
+    If number of rows in txt file doesn't match
+    appropriate number of kmers, don't append.
     """
     df_new = pd.read_csv(fname, sep='\t', header=None)
-
-    '''
-    If number of rows in txt file doesn't match number of kmers, don't append
-    '''
 
     if ((df_new.shape)[0] != kmer_count):
         error_file = open("errors.txt", "a+")
         error_file.write("\r%s, %s, missing_kmers" % (proj.name,
-        fname.name))
+                        fname.name))
+        error_file.close()
         return df
     else:
-        df_new.set_index(0, inplace=True)
+        df_new.set_index(0, inplace=True) # check if useless
         df_new = df_new.transpose()
-        df_new.index = [ind]
+        df_new.index = [label]
         return df.append(df_new)
 
 
-def load_data(data_name, df, kmer_count):
+def load_data(data_name, df, kmer_count, label):
     """
     Function loads a certain type of data
     for each experiment, call file_shell
@@ -94,7 +134,7 @@ def load_data(data_name, df, kmer_count):
             for experiment in experiment_list.iterdir():
                 #print("Current exp: %s" % experiment)
                 if os.stat(experiment).st_size != 0:
-                    df = file_shell(df, project, experiment, kmer_count, 1)
+                    df = file_shell(df, project, experiment, kmer_count, label)
                 else:
                     #print("ERROR FOUND IN FILE %s" % experiment)
                     error_file = open("errors.txt", "a+")
@@ -103,23 +143,23 @@ def load_data(data_name, df, kmer_count):
     return df
 
 def create_dataframe(first_data_type, second_data_type, kmer_list):
-    '''
+    """
     Function takes inputs the two data types to create the
     dataset from (e.g. wgs vs. rna), and returns a dataframe
     with the kmer counts of both datatypes
-    '''
+    """
     clear_errors()
     df = pd.DataFrame()
     kmer_count = calculate_dimension(kmer_list)
-    df = load_data(first_data_type, df, kmer_count)
-    df = load_data(second_data_type, df, kmer_count)
+    df = load_data(first_data_type, df, kmer_count, 0)
+    df = load_data(second_data_type, df, kmer_count, 1)
     return df
 
 def efficiency_check(first_data_type, second_data_type, kmer_list, n):
-    '''
+    """
     Function runs the dataframe creation process n times and generates
     average runtime stats
-    '''
+    """
     abs_avg = 0
     abs_exp_per_min = 0
 
@@ -136,15 +176,16 @@ def efficiency_check(first_data_type, second_data_type, kmer_list, n):
         abs_avg += avg
         abs_exp_per_min += exp_per_min
 
-    abs_avg = abs_avg / 100
-    abs_exp_per_min = abs_exp_per_min / 100
+    abs_avg = abs_avg / n
+    abs_exp_per_min = abs_exp_per_min / n
 
     print("Average loading time: %f seconds per experiment" % avg)
     print("Experiments to be processed per minute: %f" % exp_per_min)
 
 def main():
-    efficiency_check("rna-seq", "wgs_human", [1,2,3,4,5,6], 10)
-
+    #efficiency_check("rna-seq", "wgs_human", [1,2,3,4,5,6], 10)
+    df_test = pd.DataFrame()
+    
 
 if __name__ == "__main__":
     main()

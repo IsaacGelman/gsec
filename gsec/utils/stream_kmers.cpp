@@ -1,8 +1,8 @@
 /*
-  countkmers: A program to count kmers in FASTQ files, for a given
+  stream_kmers: A program to count kmers in FASTQ files, for a given
   value of k, and ignoring anything with an N
 
-  Author: Andrew D Smith
+  Author: Andrew D Smith, Natalie Abreu, Isaac Gelman
 
   This software is Copyright (C) 2020 The University of Southern
   California. All Rights Reserved.
@@ -147,7 +147,7 @@ bool check_converge(std::vector<std::vector<double>> &f, std::vector<std::vector
   for (unsigned int i = 0; i < f.size(); i++) {
     for (unsigned int j = 0; j < f[i].size(); j++) {
       diff = std::abs(f[i][j] - prev[i][j]);
-      if (diff > 1*pow(10,-10)) {
+      if (diff > 1*pow(10,-5)) {
         return false; 
       }
     }  
