@@ -46,9 +46,10 @@ import sys, os, argparse
 import subprocess
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import ParseError
-from model_building.create_model_utils import create_dataframe
+from .model_building.create_model_utils import create_dataframe
 
-ROOT = os.path.dirname(os.getcwd())
+ROOT = os.path.dirname(sys.path[0])
+print(sys.path)
 
 def main():
     print('python gsec-train.py pos_strat pos_org neg_strat neg_org \
