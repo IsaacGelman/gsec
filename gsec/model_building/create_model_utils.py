@@ -42,28 +42,12 @@
 
 import pandas as pd
 import numpy as nump
-import sklearn as sk
 import os
 from pathlib import Path
-from sklearn.model_selection import train_test_split
-from sklearn import naive_bayes
-from sklearn.naive_bayes import GaussianNB
-from sklearn.metrics import roc_auc_score
-from sklearn.metrics import accuracy_score
-from sklearn.metrics import classification_report
-from sklearn.model_selection import GridSearchCV
-from sklearn.ensemble import RandomForestClassifier, VotingClassifier
-from sklearn.linear_model import LinearRegression
-from sklearn.linear_model import LogisticRegression
-from sklearn import neighbors
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
 import time
 
 # File paths
 model_dir = os.path.dirname(os.path.realpath(__file__))
-data_dir = os.path.join(model_dir, 'genomics_data')
-
 
 """Assumption made on file directories:
  this script is in the same directory as genomics_data folder """
