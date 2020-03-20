@@ -47,8 +47,8 @@ import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from xml.etree.ElementTree import ParseError
-from model_building.create_model_utils import create_dataframe
-from model_building.create_model import create_model
+from .model_building.create_model_utils import create_dataframe
+from .model_building.create_model import create_model
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
 
@@ -77,7 +77,7 @@ def main():
     args = parser.parse_args()
 
     # Check if there are temp files from last run
-    remove_temp(os.path.join(ROOT,'gsec', 'utils'))
+    remove_temp(os.path.join(ROOT, 'utils'))
 
     # Get positive and negative strings
     pos_strat = args.pos_strat
@@ -91,23 +91,23 @@ def main():
     n = args.num_files
 
     # Queries
-    query(pos_strat, pos_org, n, os.path.join(ROOT, 'gsec','utils', 'pos.xml'))
-    query(pos_strat, pos_org, n, os.path.join(ROOT, 'gsec','utils', 'neg.xml'))
+    query(pos_strat, pos_org, n, os.path.join(ROOT,'utils', 'pos.xml'))
+    query(pos_strat, pos_org, n, os.path.join(ROOT,'utils', 'neg.xml'))
 
     # get srrs
-    pos_srrs = parse_xml(os.path.join(ROOT, 'gsec', 'utils', 'pos.xml'), n)
+    pos_srrs = parse_xml(os.path.join(ROOT, 'utils', 'pos.xml'), n)
     if len(pos_srrs) == 0:
         print('{}, {} returned no matches...'.format(pos_strat, pos_org))
         return 1
 
 
-    neg_srrs = parse_xml(os.path.join(ROOT, 'gsec', 'utils', 'neg.xml'), n)
+    neg_srrs = parse_xml(os.path.join(ROOT, 'utils', 'neg.xml'), n)
     if len(neg_srrs) == 0:
         print('{}, {} returned no matches...'.format(neg_strat, neg_org))
         return 1
 
     # delete temp srr files
-    remove_temp(os.path.join(ROOT,'gsec', 'utils'))
+    remove_temp(os.path.join(ROOT, 'utils'))
 
     # validate directories to save files
     validate_dirs(out)
@@ -143,7 +143,7 @@ def main():
         return 1
     # if not, use returned dataframe to train models and return
     else:
-        if(create_model(df, k) != 0)
+        if(create_model(df, k) != 0):
             print("Model building failed. Aborting")
 
     print(df)
@@ -158,11 +158,11 @@ def count(k, limit, srr, out):
     out (str): directory to save files
     """
     # check if stream_kmers is compiled
-    if ('stream_kmers') not in os.listdir(os.path.join(ROOT, 'gsec', 'utils')):
+    if ('stream_kmers') not in os.listdir(os.path.join(ROOT, 'utils')):
         # compile
         comp = 'g++ {} -o {}'.format(
-            os.path.join(ROOT, 'utils', 'stream_kmers.cpp'),
-            os.path.join(ROOT, 'utils', 'stream_kmers')
+            os.path.join(ROOT, 'stream_kmers.cpp'),
+            os.path.join(ROOT, 'stream_kmers')
             )
         print('COMPILING....')
         print(comp)
@@ -170,7 +170,7 @@ def count(k, limit, srr, out):
 
     # shell commands to run
     filename = os.path.join(out, '{}.txt'.format(srr))
-    count_path = os.path.join(ROOT, 'gsec','utils', 'stream_kmers')
+    count_path = os.path.join(ROOT, 'utils', 'stream_kmers')
     fastq = "fastq-dump --skip-technical --split-spot -Z {}".format(srr)
     count = "{} {} {} > {}".format(count_path,
                                      str(k),
