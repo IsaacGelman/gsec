@@ -45,11 +45,12 @@
 import sys, os, argparse
 import subprocess
 import xml.etree.ElementTree as ET
+from pathlib import Path
 from xml.etree.ElementTree import ParseError
-from .model_building.create_model_utils import create_dataframe
+from model_building.create_model_utils import create_dataframe
 
-ROOT = os.path.dirname(sys.path[0])
-print(sys.path)
+ROOT = os.path.dirname(os.path.realpath(__file__))
+print(ROOT)
 
 def main():
     print('python gsec-train.py pos_strat pos_org neg_strat neg_org \
@@ -131,7 +132,7 @@ def main():
     # create dataframe from count files
     # TODO: alter names of data directories and ask for list of kmers
     df = create_dataframe(
-        out, 
+        out,
         "positive",
         "negative",
         [i for i in range(1, k+1)]
