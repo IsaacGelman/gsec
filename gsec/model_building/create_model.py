@@ -27,7 +27,6 @@ from glob import glob
 
 # file paths and names
 model_dir = os.path.dirname(os.path.realpath(__file__))
-data_dir = os.path.join(model_dir, 'genomics_data')
 
 existing_models = glob(model_dir + '*.pkl')
 model_filename = model_dir + 'model%d.pkl' % (len(existing_models) + 1)
@@ -47,7 +46,7 @@ def normalize(df, maxk):
 def create_model(df, maxk):
 
     # normalize
-    normalize(df,maxk)
+    #normalize(df,maxk)
     df.dropna(inplace=True)
 
     # split train and test
@@ -190,4 +189,4 @@ def create_model(df, maxk):
     with open(model_filename, "wb") as file:
         pickle.dump(model_types[model_type_string], file)
 
-    return df
+    return 0

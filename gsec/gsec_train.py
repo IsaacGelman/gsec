@@ -45,11 +45,12 @@
 import sys, os, argparse
 import subprocess
 import xml.etree.ElementTree as ET
+from pathlib import Path
 from xml.etree.ElementTree import ParseError
-from .model_building.create_model_utils import create_dataframe
-import pathlib
+from model_building.create_model_utils import create_dataframe
+from model_building.create_model import create_model
 
-ROOT = pathlib.Path(__file__).parent.absolute()
+ROOT = os.path.dirname(os.path.realpath(__file__))
 
 def main():
     print('python gsec-train.py pos_strat pos_org neg_strat neg_org \
@@ -131,11 +132,20 @@ def main():
     # create dataframe from count files
     # TODO: alter names of data directories and ask for list of kmers
     df = create_dataframe(
-        out, 
+        out,
         "positive",
         "negative",
         [i for i in range(1, k+1)]
     )
+
+    # check if dataframe is empty: if it is, not enough data and must abort
+    if(df.empty):
+        return 1
+    # if not, use returned dataframe to train models and return
+    else:
+        if(create_model(df, k) != 0)
+            print("Model building failed. Aborting")
+
     print(df)
     return 0
 
