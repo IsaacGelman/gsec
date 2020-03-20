@@ -48,6 +48,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from xml.etree.ElementTree import ParseError
 from model_building.create_model_utils import create_dataframe
+from model_building.create_model import create_model
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
 print(ROOT)
@@ -137,6 +138,15 @@ def main():
         "negative",
         [i for i in range(1, k+1)]
     )
+
+    # check if dataframe is empty: if it is, not enough data and must abort
+    if(df.empty):
+        return 1
+    # if not, use returned dataframe to train models and return
+    else:
+        if(create_model(df, k) != 0)
+            print("Model building failed. Aborting")
+
     print(df)
     return 0
 
