@@ -70,13 +70,6 @@ char encoding[] = {
 //         A     C           G (look up from letters to see the encoding)
 //                  T
 
-// any way this can be faster than the "transform" below?
-static void
-encode_line(string &line) {
-  for (auto && i : line)
-    i = encoding[i];
-}
-
 // template here allows for different magnitudes of counts
 struct kmer_counter {
   kmer_counter(const size_t the_k_value) {
@@ -138,17 +131,21 @@ main(int argc, const char * const argv[]) {
 
   try {
 
-    if (argc != 3) {
-      std::cerr << "usage: " << argv[0] << " <k-value> <fastq-file>" << endl;
+    if (argc < 2 || argc > 3) {
+      std::cerr << "usage: " << argv[0] << " <k-value> [<fastq-file>]" << endl;
       return 1; // for bad command format
     }
 
-    const string filename(argv[2]);
     const size_t k_value(atoi(argv[1])); // need error checking here
 
-    std::ifstream in(filename);
-    if (!in)
-      throw std::runtime_error("failed opening file: " + filename);
+    std::ifstream the_file;
+    if (argc == 3) {
+      const string filename(argv[2]);
+      the_file.open(filename);
+      if (!the_file.good())
+        throw std::runtime_error("failed opening file: " + filename);
+    }
+    std::istream in(argc == 3 ? the_file.rdbuf() : std::cin.rdbuf());
 
     kmer_counter the_counter(k_value);
     std::vector<unsigned int> counts(the_counter.n_kmers);
@@ -159,13 +156,14 @@ main(int argc, const char * const argv[]) {
 
     size_t line_count = 0;
     while (getline(in, line)) {
-      if (line_count % 4 == 1) // only do "sequence" lines
+      if (line_count % 4 == 1) { // only do "sequence" lines
         if (line.find('N') == string::npos) {
           std::transform(begin(line), end(line), begin(line),
-                         [](const char c) {return encoding[c];});
+                         [](const uint8_t c) {return encoding[c];});
           the_counter.count_line(line, counts);
         }
         else ++lines_with_N;
+      }
       line_count++;
     }
 
