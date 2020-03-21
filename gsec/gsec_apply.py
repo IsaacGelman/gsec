@@ -12,7 +12,7 @@ import pandas as pd
 from pathlib import Path
 
 
-def main():
+def predict():
     print('python3 gsec.py pos_strat pos_org neg_strat neg_org fastq_file')
 
     parser = argparse.ArgumentParser(description='prepare project config')

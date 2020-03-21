@@ -53,15 +53,14 @@ from .utils.csv_utils import csv_append, get_next_id
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
 
-def main(
+def train(
     pos_strat,
     pos_org,
     neg_strat,
     neg_org,
     k,
     limit,
-    n
-):
+    n):
     """
     pos_strat: (str) strategy for positive set
     pos_org: (str) organism for positive set
@@ -245,4 +244,4 @@ def validate_dirs(id):
     
 
 if __name__ == '__main__':
-    main()
+    train()
