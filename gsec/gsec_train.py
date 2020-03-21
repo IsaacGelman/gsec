@@ -47,9 +47,9 @@ import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from xml.etree.ElementTree import ParseError
-from model_building.create_model_utils import create_dataframe
-from model_building.create_model import create_model
-from utils.csv_utils import csv_append, get_next_id
+from .model_building.create_model_utils import create_dataframe
+from .model_building.create_model import create_model
+from .utils.csv_utils import csv_append, get_next_id
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
 

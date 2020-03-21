@@ -12,7 +12,7 @@ import pandas as pd
 from pathlib import Path
 
 
-def apply(
+def apply_(
     pos_strat,
     pos_org,
     neg_strat,
@@ -107,4 +107,4 @@ def count(k, limit, fastq):
 
 # for testing purposes, remove later
 if __name__ == '__main__':
-    apply("bisulfite", "human", "wgs", "human", "SRR5149059.fastq")
+    apply_("bisulfite", "human", "wgs", "human", "SRR5149059.fastq")
