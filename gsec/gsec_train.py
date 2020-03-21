@@ -49,6 +49,7 @@ from pathlib import Path
 from xml.etree.ElementTree import ParseError
 from .model_building.create_model_utils import create_dataframe
 from .model_building.create_model import create_model
+from .utils.csv_utils import csv_append, get_next_id
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
 
@@ -128,6 +129,17 @@ def main():
         count(k, limit, srr, os.path.join(out,'negative'))
 
     print("Done counting!")
+
+    # add id to csv
+    info = {
+            "id": get_next_id(out),
+            "org1": pos_org,
+            "strat1": pos_strat,
+            "org2": neg_org,
+            "strat2": neg_strat,
+    }
+    csv_append(info, out)
+
 
     # create dataframe from count files
     # TODO: alter names of data directories and ask for list of kmers
