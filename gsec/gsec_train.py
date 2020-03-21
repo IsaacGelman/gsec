@@ -259,4 +259,4 @@ def test_csv_append():
     print("next id: %s" % get_next_id('models.csv'))
 
 if __name__ == '__main__':
-    test_csv_append()
+    train()
