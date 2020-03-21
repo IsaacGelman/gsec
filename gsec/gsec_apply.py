@@ -95,7 +95,6 @@ def count(k, limit, fastq):
         subprocess.call(comp, shell=True)
 
     # shell commands to run
-    # filename = os.path.join(out, '{}.txt'.format(fastq[:-6]))
     count_path = os.path.join(ROOT,  'gsec', 'utils', 'stream_kmers')
     # TODO fastq path should just be what is passed in as argument i think
     # also, will be called from gsec or gsec/gsec ?
@@ -104,19 +103,8 @@ def count(k, limit, fastq):
                                      str(k),
                                      str(limit))
     full = "cat " + fastq + " | " + count
-    # subprocess.call(full, shell=True)
     return full
 
-def file_shell(df,fname,ind):
-    """
-    helper function to append new data
-    """
-    df1 = pd.read_csv(fname, sep='\t', header=None)
-    df1.set_index(0, inplace=True)
-    df2 = df1.transpose()
-    df2.index = [ind]
-    df3 = df.append(df2)
-    return df3
-
+# for testing purposes, remove later
 if __name__ == '__main__':
     apply("bisulfite", "human", "wgs", "human", "SRR5149059.fastq")
