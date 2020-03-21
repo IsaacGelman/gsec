@@ -43,7 +43,7 @@
 
 import argparse
 from .gsec_train import train
-from .gsec_apply import predict
+from .gsec_apply import apply_
 
 def main():
     parser = argparse.ArgumentParser()
@@ -57,7 +57,7 @@ def main():
                         help='strategy for negative set')
     parser.add_argument('--neg-org', dest='neg_org', required=True,
                         help='organism for negative set')
-    parser.add_argument('-k', '--k-value', dest='max_k', required=True,
+    parser.add_argument('-k', '--k-value', dest='max_k', required=False,
                         type=int, help='maximum size of k-mers')
     parser.add_argument('-l', '--limit-reads', dest='limit_reads', required=False, 
                         type=int, help='number of reads to use')
@@ -77,13 +77,15 @@ def main():
         else:
             parser.error("command gsec train requires:\n\t pos-strat," +
                          " pos-org, neg-strat, neg-org, k-value, num-samples")
-    elif args.command=="predict":
+    elif args.command=="apply":
         if args.pos_strat and args.pos_org and args.neg_strat \
-         and args.neg_org and args.max_k and args.fastq:
-            predict(args.pos_strat, args.pos_org, args.neg_strat,
-                    args.neg_org, args.max_k, args.fastq)
+         and args.neg_org and args.fastq:
+            apply_(args.pos_strat, args.pos_org, args.neg_strat,
+                    args.neg_org, args.fastq)
         else:
             parser.error("arguments not correct")
+    else:
+        parser.error("Available commands:\n\ttrain\n\tapply")
 
 
     return 0

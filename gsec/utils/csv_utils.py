@@ -1,5 +1,6 @@
 import csv
 import os
+from pathlib import Path
 
 
 def csv_append(info, file):
@@ -14,9 +15,9 @@ def csv_append(info, file):
             strat1: (str),
             org2: (str)
             strat2: (str)
-    } 
+    }
 
-    file: path of csv file 
+    file: name of csv file
 
     returns: 0 on success, 1 on failure
     """
@@ -32,7 +33,7 @@ def csv_append(info, file):
 
     # verify if csv exists
     exists = False
-    if os.path.isfile(path):
+    if os.path.isfile(file):
         exists = True
 
     # append to file
@@ -47,9 +48,10 @@ def csv_append(info, file):
 
 def get_next_id(file):
     """
-    file: path of csv file 
+    file: name of csv file
     returns next id to create
     """
+
     # verify if csv exists and get next id
     try:
         with open(file, 'r') as f:
@@ -59,3 +61,19 @@ def get_next_id(file):
         id_ = 1
 
     return id_
+
+'''def __main__():
+    next = get_next_id("test_f.csv")
+    info = {
+            "id": next,
+            "org1": "pos_org",
+            "strat1": "pos_strat",
+            "org2": "neg_org",
+            "strat2": "neg_strat",
+    }
+    csv_append(info, "test_f.csv")
+    print(get_next_id("test_f.csv"))
+
+if __name__ == '__main__':
+    __main__()
+'''

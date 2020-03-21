@@ -94,7 +94,7 @@ def train(
     remove_temp(os.path.join(ROOT, 'utils'))
 
     # validate directories to save files
-    id_dir = validate_dirs(get_next_id())
+    id_dir = validate_dirs(get_next_id('models.csv'), pos_strat, neg_strat)
 
     # count srrs
     print("<--- Counting positives --->")
@@ -102,34 +102,33 @@ def train(
     for srr in pos_srrs:
         c+=1
         print("Counting {} [{}/{}]...".format(srr, c, len(pos_srrs)))
-        count(k, limit, srr, os.path.join(id_dir,'positive'))
+        count(k, limit, srr, os.path.join(id_dir, pos_strat))
 
     print("<--- Counting negatives --->")
     c = 0
     for srr in neg_srrs:
         c += 1
         print("Counting {} [{}/{}]...".format(srr, c, len(neg_srrs)))
-        count(k, limit, srr, os.path.join(id_dir,'negative'))
+        count(k, limit, srr, os.path.join(id_dir,neg_strat))
 
     print("Done counting!")
 
     # add id to csv
     info = {
-            "id": get_next_id(out),
+            "id": get_next_id('models.csv'),
             "org1": pos_org,
             "strat1": pos_strat,
             "org2": neg_org,
             "strat2": neg_strat,
     }
-    csv_append(info, out)
 
 
     # create dataframe from count files
     # TODO: alter names of data directories and ask for list of kmers
     df = create_dataframe(
         id_dir,
-        "positive",
-        "negative",
+        pos_strat,
+        neg_strat,
         [i for i in range(1, k+1)]
     )
 
@@ -140,6 +139,8 @@ def train(
     else:
         if(create_model(df, k) != 0):
             print("Model building failed. Aborting")
+        else:
+            csv_append(info, 'models.csv') # everything ran, append model info to csv
 
     print(df)
     return 0
@@ -212,7 +213,7 @@ def remove_temp(temp_path):
     if "pos.xml" in files:
         os.remove(os.path.join(temp_path,'pos.xml'))
 
-def validate_dirs(id):
+def validate_dirs(id, positive_strat, negative_strat):
     """
     This function will create relevant directories to save count files.
     id: id of the set of data to use as name of directory
@@ -222,8 +223,11 @@ def validate_dirs(id):
     # setting up paths
     data = os.path.join(ROOT, "model_building", "data")
     id_dir = os.path.join(data, str(id))
-    positive = os.path.join(id_dir, "positive")
-    negative = os.path.join(id_dir, "negative")
+    positive = os.path.join(id_dir, positive_strat)
+    negative = os.path.join(id_dir, negative_strat)
+
+    #positive = os.path.join(id_dir, "positive")
+    #negative = os.path.join(id_dir, "negative")
 
     # Create directories
     for directory in [data, id_dir, positive, negative]:
@@ -231,7 +235,18 @@ def validate_dirs(id):
             os.mkdir(directory)
 
     return id_dir
-    
+
+def test_csv_append():
+    info = {
+            "id": get_next_id('models.csv'),
+            "org1": "pos_org",
+            "strat1": "pos_strat",
+            "org2": "neg_org",
+            "strat2": "neg_strat",
+    }
+    file = 'models.csv'
+    csv_append(info,file)
+    print("next id: %s" % get_next_id('models.csv'))
 
 if __name__ == '__main__':
     train()
