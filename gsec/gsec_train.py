@@ -152,16 +152,6 @@ def count(k, limit, srr, out):
     srr (str): srr id for read
     out (str): directory to save files
     """
-    # check if stream_kmers is compiled
-    if ('stream_kmers') not in os.listdir(os.path.join(ROOT, 'utils')):
-        # compile
-        comp = 'g++ {} -o {}'.format(
-            os.path.join(ROOT, 'utils', 'stream_kmers.cpp'),
-            os.path.join(ROOT, 'utils', 'stream_kmers')
-            )
-        print('COMPILING....')
-        print(comp)
-        subprocess.call(comp, shell=True)
 
     # shell commands to run
     filename = os.path.join(out, '{}.txt'.format(srr))

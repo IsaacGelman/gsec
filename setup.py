@@ -1,7 +1,22 @@
 import setuptools
+from distutils.command.build import build
+import subprocess
+import os
+
+ROOT = os.path.dirname(os.path.abspath(__file__))
 
 with open("README.md", "r") as fh:
 	long_description = fh.read()
+
+class Build(build):
+    """Customized setuptools build command"""
+    def run(self):
+        cmd = ["make"]
+        subprocess.call(cmd, cwd=os.path.join(ROOT, "gsec", "utils"))
+        # run original
+        build.run(self)
+
+
 
 setuptools.setup(
 	name="gsec",
@@ -28,5 +43,8 @@ setuptools.setup(
 		"pandas",
 		"sklearn",
 		"numpy",
-	]
+	],
+	cmdclass= {
+		'build': Build,
+	},
 )
