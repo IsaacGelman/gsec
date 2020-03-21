@@ -1,7 +1,7 @@
 from .gsec_train import train
 from .gsec_apply import predict
 
-def main()
+def main():
 	# do option parsing...
 	train = False
 	apply_ = False
