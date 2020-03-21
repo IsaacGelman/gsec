@@ -45,71 +45,57 @@
 import sys, os, argparse
 import subprocess
 import xml.etree.ElementTree as ET
+from pathlib import Path
 from xml.etree.ElementTree import ParseError
 from .model_building.create_model_utils import create_dataframe
+from .model_building.create_model import create_model
+from .utils.csv_utils import csv_append, get_next_id
 
-ROOT = os.path.dirname(sys.path[0])
-print(sys.path)
+ROOT = os.path.dirname(os.path.realpath(__file__))
 
-def main():
-    print('python gsec-train.py pos_strat pos_org neg_strat neg_org \
-    max_k limit_reads out_dir num_files')
-
-    parser = argparse.ArgumentParser(description='prepare project config')
-    parser.add_argument('--pos-strat', dest='pos_strat', required=True,
-                        help='strategy for positive set')
-    parser.add_argument('--pos-org', dest='pos_org', required=True,
-                        help='organism for positive set')
-    parser.add_argument('--neg-strat', dest='neg_strat', required=True,
-                        help='strategy for negative set')
-    parser.add_argument('--neg-org', dest='neg_org', required=True,
-                        help='organism for negative set')
-    parser.add_argument('-k', '--k-value', dest='max_k', required=True,
-                        type=int, help='maximum size of k-mers')
-    parser.add_argument('-l', '--limit-reads', dest='limit_reads',
-                        type=int, required=True, help='number of reads to use')
-    parser.add_argument('-o', '--outdir', dest='out_dir', required=True,
-                        help='output directory')
-    parser.add_argument('-n', '--num-files', dest="num_files",
-                        type=int, required=True,
-                        help='number of files to count from each set')
-    args = parser.parse_args()
+def main(
+    pos_strat,
+    pos_org,
+    neg_strat,
+    neg_org,
+    k,
+    limit,
+    n
+):
+    """
+    pos_strat: (str) strategy for positive set
+    pos_org: (str) organism for positive set
+    neg_strat: (str) strategy for negative set
+    neg_org: (str) organism for negative set
+    k (int): max kmer to count
+    limit (int): limit of reads for each run
+    n (int): number of files for each set
+    """
 
     # Check if there are temp files from last run
-    remove_temp(os.path.join(ROOT,'gsec', 'utils'))
-
-    # Get positive and negative strings
-    pos_strat = args.pos_strat
-    pos_org = args.pos_org
-    neg_strat = args.neg_strat
-    neg_org = args.neg_org
-
-    k = args.max_k
-    limit = args.limit_reads
-    out = args.out_dir
-    n = args.num_files
+    remove_temp(os.path.join(ROOT, 'utils'))
 
     # Queries
-    query(pos_strat, pos_org, n, os.path.join(ROOT, 'gsec','utils', 'pos.xml'))
-    query(pos_strat, pos_org, n, os.path.join(ROOT, 'gsec','utils', 'neg.xml'))
+    query(pos_strat, pos_org, n, os.path.join(ROOT,'utils', 'pos.xml'))
+    query(pos_strat, pos_org, n, os.path.join(ROOT,'utils', 'neg.xml'))
 
     # get srrs
-    pos_srrs = parse_xml(os.path.join(ROOT, 'gsec', 'utils', 'pos.xml'), n)
+    pos_srrs = parse_xml(os.path.join(ROOT, 'utils', 'pos.xml'), n)
     if len(pos_srrs) == 0:
         print('{}, {} returned no matches...'.format(pos_strat, pos_org))
         return 1
 
 
-    neg_srrs = parse_xml(os.path.join(ROOT, 'gsec', 'utils', 'neg.xml'), n)
+    neg_srrs = parse_xml(os.path.join(ROOT, 'utils', 'neg.xml'), n)
     if len(neg_srrs) == 0:
         print('{}, {} returned no matches...'.format(neg_strat, neg_org))
         return 1
 
     # delete temp srr files
-    remove_temp(os.path.join(ROOT,'gsec', 'utils'))
+    remove_temp(os.path.join(ROOT, 'utils'))
 
     # validate directories to save files
-    validate_dirs(out)
+    id_dir = validate_dirs(get_next_id())
 
     # count srrs
     print("<--- Counting positives --->")
@@ -117,25 +103,45 @@ def main():
     for srr in pos_srrs:
         c+=1
         print("Counting {} [{}/{}]...".format(srr, c, len(pos_srrs)))
-        count(k, limit, srr, os.path.join(out,'positive'))
+        count(k, limit, srr, os.path.join(id_dir,'positive'))
 
     print("<--- Counting negatives --->")
     c = 0
     for srr in neg_srrs:
         c += 1
         print("Counting {} [{}/{}]...".format(srr, c, len(neg_srrs)))
-        count(k, limit, srr, os.path.join(out,'negative'))
+        count(k, limit, srr, os.path.join(id_dir,'negative'))
 
     print("Done counting!")
+
+    # add id to csv
+    info = {
+            "id": get_next_id(out),
+            "org1": pos_org,
+            "strat1": pos_strat,
+            "org2": neg_org,
+            "strat2": neg_strat,
+    }
+    csv_append(info, out)
+
 
     # create dataframe from count files
     # TODO: alter names of data directories and ask for list of kmers
     df = create_dataframe(
-        out, 
+        id_dir,
         "positive",
         "negative",
         [i for i in range(1, k+1)]
     )
+
+    # check if dataframe is empty: if it is, not enough data and must abort
+    if(df.empty):
+        return 1
+    # if not, use returned dataframe to train models and return
+    else:
+        if(create_model(df, k) != 0):
+            print("Model building failed. Aborting")
+
     print(df)
     return 0
 
@@ -148,7 +154,7 @@ def count(k, limit, srr, out):
     out (str): directory to save files
     """
     # check if stream_kmers is compiled
-    if ('stream_kmers') not in os.listdir(os.path.join(ROOT, 'gsec', 'utils')):
+    if ('stream_kmers') not in os.listdir(os.path.join(ROOT, 'utils')):
         # compile
         comp = 'g++ {} -o {}'.format(
             os.path.join(ROOT, 'utils', 'stream_kmers.cpp'),
@@ -160,7 +166,7 @@ def count(k, limit, srr, out):
 
     # shell commands to run
     filename = os.path.join(out, '{}.txt'.format(srr))
-    count_path = os.path.join(ROOT, 'gsec','utils', 'stream_kmers')
+    count_path = os.path.join(ROOT, 'utils', 'stream_kmers')
     fastq = "fastq-dump --skip-technical --split-spot -Z {}".format(srr)
     count = "{} {} {} > {}".format(count_path,
                                      str(k),
@@ -217,19 +223,26 @@ def remove_temp(temp_path):
     if "pos.xml" in files:
         os.remove(os.path.join(temp_path,'pos.xml'))
 
-def validate_dirs(out):
-    try:
-        os.mkdir(out)
-    except FileExistsError:
-        pass
-    try:
-        os.mkdir(os.path.join(out, 'positive'))
-    except FileExistsError:
-        pass
-    try:
-        os.mkdir(os.path.join(out, 'negative'))
-    except FileExistsError:
-        pass
+def validate_dirs(id):
+    """
+    This function will create relevant directories to save count files.
+    id: id of the set of data to use as name of directory
+
+    returns: directory to save new id
+    """
+    # setting up paths
+    data = os.path.join(ROOT, "model_building", "data")
+    id_dir = os.path.join(data, str(id))
+    positive = os.path.join(id_dir, "positive")
+    negative = os.path.join(id_dir, "negative")
+
+    # Create directories
+    for directory in [data, id_dir, positive, negative]:
+        if not os.path.exists(directory):
+            os.mkdir(directory)
+
+    return id_dir
+    
 
 if __name__ == '__main__':
     main()

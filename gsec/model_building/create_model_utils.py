@@ -81,7 +81,7 @@ def calculate_dimension(kmer_list):
     return total_count
 
 
-def file_shell(df,proj,fname, kmer_count, label):
+def append_experiment(df,proj,fname, kmer_count, label):
     """
     Append experiment of name "fname" to dataframe
     If number of rows in txt file doesn't match
@@ -117,8 +117,8 @@ def file_shell(df,proj,fname, kmer_count, label):
 def load_data(data_name, df, kmer_count, label, data_dir):
     """
     Function loads a certain type of data
-    for each experiment, call file_shell
-    file_shell returns a dataframe with
+    for each experiment, call append_experiment
+    append_experiment returns a dataframe with
     kmer data of most recent experiment
     appended to it
     """
@@ -130,7 +130,11 @@ def load_data(data_name, df, kmer_count, label, data_dir):
             for experiment in experiment_list.iterdir():
                 extension = experiment.suffix
                 if os.stat(experiment).st_size != 0 and extension == '.txt':
-                    df = file_shell(df, project, experiment, kmer_count, label)
+                    df = append_experiment(df,
+                    project,
+                    experiment,
+                    kmer_count,
+                    label)
                 else:
                     error_file = open("errors.txt", "a+")
                     error_file.write("\r%s, %s, empty_file" % (project.name,
@@ -146,8 +150,19 @@ def create_dataframe(data_dir, first_data_type, second_data_type, kmer_list):
     clear_errors()
     df = pd.DataFrame()
     kmer_count = calculate_dimension(kmer_list)
+
     df = load_data(first_data_type, df, kmer_count, 0, data_dir)
+    if(df.shape[0] < 20):
+        print("Less than 20 counts in %s data file. Aborting" % first_data_type)
+        return
+
     df = load_data(second_data_type, df, kmer_count, 1, data_dir)
+    if(df.shape[0] < 40):
+        print("Less than 20 counts in %s data file. Aborting" %
+        second_data_type)
+        return
+
+
     return df
 
 def efficiency_check(first_data_type, second_data_type, kmer_list, n):
