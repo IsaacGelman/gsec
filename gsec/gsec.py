@@ -57,7 +57,7 @@ def main():
                         help='strategy for negative set')
     parser.add_argument('--neg-org', dest='neg_org', required=True,
                         help='organism for negative set')
-    parser.add_argument('-k', '--k-value', dest='max_k', required=True,
+    parser.add_argument('-k', '--k-value', dest='max_k', required=False,
                         type=int, help='maximum size of k-mers')
     parser.add_argument('-l', '--limit-reads', dest='limit_reads', required=False, 
                         type=int, help='number of reads to use')
