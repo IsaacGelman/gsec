@@ -124,6 +124,6 @@ def file_shell(df,fname,ind):
     return df3
 
 if __name__ == '__main__':
-    apply()
+    apply("bisulfite", "human", "wgs", "human", "SRR5149059.fastq")
 
 
