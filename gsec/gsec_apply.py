@@ -12,37 +12,27 @@ import pandas as pd
 from pathlib import Path
 
 
-def main():
+def apply(
+    pos_strat,
+    pos_org,
+    neg_strat,
+    neg_org,
+    file
+):
     print('python3 gsec.py pos_strat pos_org neg_strat neg_org fastq_file')
 
-    parser = argparse.ArgumentParser(description='prepare project config')
-    parser.add_argument('--pos-strat', dest='pos_strat', required=True,
-                        help='strategy for positive set')
-    parser.add_argument('--pos-org', dest='pos_org', required=True,
-                        help='organism for positive set')
-    parser.add_argument('--neg-strat', dest='neg_strat', required=True,
-                        help='strategy for negative set')
-    parser.add_argument('--neg-org', dest='neg_org', required=True,
-                        help='organism for negative set')
-    parser.add_argument('-f', '--file', dest='fastq_file', required=True,
-                        help='fastq file')
-    args = parser.parse_args()
-
-
-    # Get positive and negative strings
-    pos_strat = args.pos_strat
-    pos_org = args.pos_org
-    neg_strat = args.neg_strat
-    neg_org = args.neg_org
-
-    # Get fastq file
-    file = args.fastq_file
+    """
+    pos_strat: (str) strategy for positive set
+    pos_org: (str) organism for positive set
+    neg_strat: (str) strategy for negative set
+    neg_org: (str) organism for negative set
+    file: (str) fastq file to be processed
+    """
 
     # TODO will have to change for when there is an actual models.csv file
     # read csv, and split on "," the line
     
-    csv_file = csv.reader(open(os.path.join(ROOT, 'utils/models.csv')), delimiter=",")
-    # csv_file = csv.reader(open('models.csv', "rb"), delimiter=",")
+    csv_file = csv.reader(open(os.path.join(ROOT, 'gsec/models.csv')), delimiter=",")
 
 
     # loop through list of models
@@ -60,15 +50,28 @@ def main():
         model = pickle.load(model_pkl)  
 
     # count kmers and create dataframe with result
-    out = os.path.join(ROOT, 'temp')
-    df = pd.DataFrame()
+
+    cmd = count(6, 1000, file)
+    a = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+
+    if sys.version_info[0] < 3: 
+        from StringIO import StringIO
+    else:
+        from io import StringIO
+
+    b = StringIO(a.communicate()[0].decode('utf-8'))
+
+    df = pd.read_csv(b, sep=",")
+
+    # out = os.path.join(ROOT, 'temp')
+    # df = pd.DataFrame()
     
-    basepath_bs = count(6, 1000, file, out)
-    entry = Path(basepath_bs)
-    print(entry)
-    if os.stat(entry).st_size != 0:
-        df = file_shell(df,entry,0)
-    df.dropna(inplace=True)
+    # basepath_bs = count(6, 1000, file, out)
+    # entry = Path(basepath_bs)
+    # print(entry)
+    # if os.stat(entry).st_size != 0:
+    #     df = file_shell(df,entry,0)
+    # df.dropna(inplace=True)
 
     print(df)
 
@@ -79,7 +82,7 @@ def main():
     return 0; # success
 
     
-def count(k, limit, fastq, out):
+def count(k, limit, fastq):
     """
     k (int): max kmer to count
     limit (int): limit number of reads to count for given file
@@ -99,16 +102,15 @@ def count(k, limit, fastq, out):
         subprocess.call(comp, shell=True)
 
     # shell commands to run
-    filename = os.path.join(out, '{}.txt'.format(fastq[:-6]))
+    # filename = os.path.join(out, '{}.txt'.format(fastq[:-6]))
     count_path = os.path.join(ROOT, 'utils', 'stream_kmers')
     fastq = os.path.join(ROOT, 'utils', fastq)
-    count = "{} {} {} > {}".format(count_path,
+    count = "{} {} {}".format(count_path,
                                      str(k),
-                                     str(limit),
-                                     str(filename))
+                                     str(limit))
     full = "cat " + fastq + " | " + count
-    subprocess.call(full, shell=True)
-    return filename
+    # subprocess.call(full, shell=True)
+    return full
 
 def file_shell(df,fname,ind):
     """
