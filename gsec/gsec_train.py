@@ -94,7 +94,7 @@ def train(
     remove_temp(os.path.join(ROOT, 'utils'))
 
     # validate directories to save files
-    id_dir = validate_dirs(get_next_id(), pos_strat, neg_strat)
+    id_dir = validate_dirs(get_next_id('models.csv'), pos_strat, neg_strat)
 
     # count srrs
     print("<--- Counting positives --->")
@@ -115,7 +115,7 @@ def train(
 
     # add id to csv
     info = {
-            "id": get_next_id(out),
+            "id": get_next_id('models.csv'),
             "org1": pos_org,
             "strat1": pos_strat,
             "org2": neg_org,
@@ -140,7 +140,7 @@ def train(
         if(create_model(df, k) != 0):
             print("Model building failed. Aborting")
         else:
-            csv_append(info, out) # everything ran, append model info to csv
+            csv_append(info, 'models.csv') # everything ran, append model info to csv
 
     print(df)
     return 0
@@ -246,6 +246,17 @@ def validate_dirs(id, positive_strat, negative_strat):
 
     return id_dir
 
+def test_csv_append():
+    info = {
+            "id": get_next_id('models.csv'),
+            "org1": "pos_org",
+            "strat1": "pos_strat",
+            "org2": "neg_org",
+            "strat2": "neg_strat",
+    }
+    file = 'models.csv'
+    csv_append(info,file)
+    print("next id: %s" % get_next_id('models.csv'))
 
 if __name__ == '__main__':
-    train()
+    test_csv_append()
