@@ -47,8 +47,8 @@ from .gsec_apply import predict
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", required=True,
-                        help="Options: gsec train, gsec predict, ...",) 
+    parser.add_argument('command',
+                        help='Options: gsec train, gsec predict, ...') 
     parser.add_argument('--pos-strat', dest='pos_strat', required=True,
                         help='strategy for positive set')
     parser.add_argument('--pos-org', dest='pos_org', required=True,
@@ -59,30 +59,29 @@ def main():
                         help='organism for negative set')
     parser.add_argument('-k', '--k-value', dest='max_k', required=True,
                         type=int, help='maximum size of k-mers')
-    parser.add_argument('-l', '--limit-reads', dest='limit_reads',
-                        type=int, required=True, help='number of reads to use')
-    parser.add_argument('-n', '--num-samples', dest="num_samples",
-                        type=int, required=True,
-                        help='number of samples to count from each set')
-    parser.add_argument('-f', '--fastq', dest="fastq", required=True,
-                        help='')
+    parser.add_argument('-l', '--limit-reads', dest='limit_reads', required=False, 
+                        type=int, help='number of reads to use')
+    parser.add_argument('-n', '--num-samples', dest="num_samples", required=False,
+                        type=int, help='number of samples to count from each set')
+    parser.add_argument('-f', '--fastq', dest="fastq", required=False,
+                        help='file to apply model to')
     args = parser.parse_args()
     
-    if command=="train":
-        if parser.pos_strat and parser.pos_org and parser.neg_strat \
-         and parser.neg_org and parser.max_k and parser.limit_reads \
-         and parser.num_samples:
-            train(parser.pos_strat, parser.pos_org, parser.neg_strat,
-                  parser.neg_org, parser.max_k, parser.limit_reads,
-                  parser.num_samples)
+    if args.command=="train":
+        if args.pos_strat and args.pos_org and args.neg_strat \
+         and args.neg_org and args.max_k and args.limit_reads \
+         and args.num_samples:
+            train(args.pos_strat, args.pos_org, args.neg_strat,
+                  args.neg_org, args.max_k, args.limit_reads,
+                  args.num_samples)
         else:
-            parser.error("command train requires:\n\t pos-strat," +
+            parser.error("command gsec train requires:\n\t pos-strat," +
                          " pos-org, neg-strat, neg-org, k-value, num-samples")
-    elif command=="predict":
-        if parser.pos_strat and parser.pos_org and parser.neg_strat \
-         and parser.neg_org and parser.max_k and parser.fastq:
-            predict(parser.pos_strat, parser.pos_org, parser.neg_strat,
-                    parser.neg_org, parser.max_k, parser.fastq)
+    elif args.command=="predict":
+        if args.pos_strat and args.pos_org and args.neg_strat \
+         and args.neg_org and args.max_k and args.fastq:
+            predict(args.pos_strat, args.pos_org, args.neg_strat,
+                    args.neg_org, args.max_k, args.fastq)
         else:
             parser.error("arguments not correct")
 
