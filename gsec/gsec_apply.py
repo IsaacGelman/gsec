@@ -50,33 +50,26 @@ def apply(
         model = pickle.load(model_pkl)  
 
     # count kmers and create dataframe with result
-
+    # TODO  make custom
     cmd = count(6, 1000, file)
-    a = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    a = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
 
     if sys.version_info[0] < 3: 
         from StringIO import StringIO
+
     else:
         from io import StringIO
 
-    b = StringIO(a.communicate()[0].decode('utf-8'))
+    b = StringIO()
+    b.write("kmer\tfreq\n")
+    b.write(a.communicate()[0].decode('utf-8'))
 
-    df = pd.read_csv(b, sep=",")
-
-    # out = os.path.join(ROOT, 'temp')
-    # df = pd.DataFrame()
-    
-    # basepath_bs = count(6, 1000, file, out)
-    # entry = Path(basepath_bs)
-    # print(entry)
-    # if os.stat(entry).st_size != 0:
-    #     df = file_shell(df,entry,0)
-    # df.dropna(inplace=True)
-
-    print(df)
+    b.seek(0)
+    df = pd.read_table(b, usecols={"freq"}, sep="\t")
+    df = df.T
 
     result = model.predict(df)  
-    print(result)
+    print("\nresult: " + str(result))
     
 
     return 0; # success
@@ -91,11 +84,11 @@ def count(k, limit, fastq):
     """
 
     # check if stream_kmers is compiled
-    if ('stream_kmers') not in os.listdir(os.path.join(ROOT, 'utils')):
+    if ('stream_kmers') not in os.listdir(os.path.join(ROOT, 'gsec', 'utils')):
         # compile
         comp = 'g++ {} -o {}'.format(
-            os.path.join(ROOT, 'utils', 'stream_kmers.cpp'),
-            os.path.join(ROOT, 'utils', 'stream_kmers')
+            os.path.join(ROOT, 'gsec', 'utils', 'stream_kmers.cpp'),
+            os.path.join(ROOT, 'gsec', 'utils', 'stream_kmers')
             )
         print('COMPILING....')
         print(comp)
@@ -103,8 +96,10 @@ def count(k, limit, fastq):
 
     # shell commands to run
     # filename = os.path.join(out, '{}.txt'.format(fastq[:-6]))
-    count_path = os.path.join(ROOT, 'utils', 'stream_kmers')
-    fastq = os.path.join(ROOT, 'utils', fastq)
+    count_path = os.path.join(ROOT,  'gsec', 'utils', 'stream_kmers')
+    # TODO fastq path should just be what is passed in as argument i think
+    # also, will be called from gsec or gsec/gsec ?
+    fastq = os.path.join(ROOT, 'gsec', fastq)
     count = "{} {} {}".format(count_path,
                                      str(k),
                                      str(limit))
