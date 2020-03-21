@@ -40,7 +40,7 @@
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
 # PURPOSE. THE SOFTWARE PROVIDED
 
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys, os, argparse
 import subprocess
