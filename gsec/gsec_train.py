@@ -42,7 +42,7 @@
 
 #!/usr/bin/env python3
 
-import sys, os, argparse
+import sys, os, argparse, shutil
 import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -134,16 +134,31 @@ def train(
 
     # check if dataframe is empty: if it is, not enough data and must abort
     if(df.empty):
+        clear_folders(id_dir)
         return 1
+
     # if not, use returned dataframe to train models and return
     else:
         if(create_model(df, k) != 0):
             print("Model building failed. Aborting")
+            clear_folders(id_dir)
         else:
             csv_append(info, 'models.csv') # everything ran, append model info to csv
 
     print(df)
     return 0
+
+def clear_folders(id_dir):
+    '''
+    This function is called if anything fails after the data folders have
+    already been generated. If anything fails, the data folders are located
+    and deleted from the gsec/model_building/data directory
+    '''
+
+    #TODO: Check if id_dir is a directory
+    if(os.path.isdir(id_dir)):
+        print("Deleting contents of id %s" % id_dir)
+        shutil.rmtree(id_dir)
 
 
 def count(k, limit, srr, out):
@@ -156,7 +171,7 @@ def count(k, limit, srr, out):
 
     # shell commands to run
     filename = os.path.join(out, '{}.txt'.format(srr))
-    count_path = os.path.join(ROOT, 'utils', 'stream_kmers')
+    count_path = os.path.join(ROOT, 'utils', "stream_kmers")
     fastq = "fastq-dump --skip-technical --split-spot -Z {}".format(srr)
     count = "{} {} {} > {}".format(count_path,
                                      str(k),
@@ -249,4 +264,4 @@ def test_csv_append():
     print("next id: %s" % get_next_id('models.csv'))
 
 if __name__ == '__main__':
-    train()
+    train("rna-seq", "loxodonta", "wgs", "loxodonta", 6, 10000, 50)
