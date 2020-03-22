@@ -25,11 +25,10 @@ from sklearn import linear_model
 import time
 from glob import glob
 
-# file paths and names
-model_dir = os.path.dirname(os.path.realpath(__file__))
+#model_dir = os.path.dirname(os.path.realpath(__file__))
 
-existing_models = glob(model_dir + '*.pkl')
-model_filename = model_dir + 'model%d.pkl' % (len(existing_models) + 1)
+#existing_models = glob(model_dir + '*.pkl')
+#model_filename = model_dir + 'model%d.pkl' % (len(existing_models) + 1)
 
 
 # function to normalize data
@@ -43,11 +42,22 @@ def normalize(df, maxk):
     start_index = start_index+4**k
 
 # function for creating and saving model
-def create_model(df, maxk):
+def create_model(df, maxk, id):
 
     # normalize
     #normalize(df,maxk)
     df.dropna(inplace=True)
+
+    # file names and paths
+    ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+    file_name = str(id) + '.pkl'
+    models_dir = os.path.join(ROOT, "models")
+    file_dir = os.path.join(models_dir, file_name)
+
+    # if models folder doesn't exist, create it
+    if not os.path.exists(models_dir):
+        os.mkdir(models_dir)
+
 
     # split train and test
     y = df.index
@@ -186,7 +196,7 @@ def create_model(df, maxk):
             model_type_string = key
 
     # save model
-    with open(model_filename, "wb") as file:
+    with open(file_dir, "wb") as file:
         pickle.dump(model_types[model_type_string], file)
 
     return 0
