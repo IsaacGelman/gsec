@@ -47,7 +47,7 @@
 #include <stdexcept>
 #include <algorithm>
 #include <csignal>
-#include <math.h>
+#include <cmath>
 #include <set>
 #include <sstream>
 
