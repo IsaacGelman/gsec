@@ -120,6 +120,8 @@ def train(
             "strat1": pos_strat,
             "org2": neg_org,
             "strat2": neg_strat,
+            "max_k": k,
+            "limit": limit
     }
 
 
@@ -139,7 +141,7 @@ def train(
 
     # if not, use returned dataframe to train models and return
     else:
-        if(create_model(df, k) != 0):
+        if(create_model(df, k, get_next_id('models.csv')) != 0):
             print("Model building failed. Aborting")
             clear_folders(id_dir)
         else:
@@ -148,7 +150,7 @@ def train(
 
     del_folders = True
     if(del_folders):
-        clear_folders(id_dir) 
+        clear_folders(id_dir)
 
     print(df)
     return 0

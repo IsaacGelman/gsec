@@ -15,17 +15,19 @@ def csv_append(info, file):
             strat1: (str),
             org2: (str)
             strat2: (str)
+            max_k: (int)
+            limit: (int)
     }
 
     file: name of csv file
 
     returns: 0 on success, 1 on failure
     """
-    fieldnames = ["id", "org1", "strat1", "org2", "strat2"]
+    fieldnames = ["id", "org1", "strat1", "org2", "strat2", "max_k", "limit"]
 
     # Check if info is right format
     keys = info.keys()
-    if len(keys) != 5:
+    if len(keys) != 7:
         return 1
     for field in fieldnames:
         if field not in keys:
@@ -70,6 +72,8 @@ def get_next_id(file):
             "strat1": "pos_strat",
             "org2": "neg_org",
             "strat2": "neg_strat",
+            "max_k": 6,
+            "limit": 10000
     }
     csv_append(info, "test_f.csv")
     print(get_next_id("test_f.csv"))
