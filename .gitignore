@@ -9,8 +9,8 @@ __pycache__/
 # stream_kmers compiled object
 stream_kmers
 
-# ignore counts file
-out.txt
+# ignore errors file
+errors.txt
 
 # ignore generated data
 data

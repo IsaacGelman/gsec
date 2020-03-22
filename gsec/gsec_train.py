@@ -135,13 +135,13 @@ def train(
     )
 
     # check if dataframe is empty: if it is, not enough data and must abort
-    if(df.empty):
+    if df is None:
         clear_folders(id_dir)
         return 1
 
     # if not, use returned dataframe to train models and return
     else:
-        if(create_model(df, k, get_next_id('models.csv')) != 0):
+        if create_model(df, k, get_next_id('models.csv')) != 0:
             print("Model building failed. Aborting")
             clear_folders(id_dir)
         else:
@@ -149,7 +149,7 @@ def train(
                                            #info to csv
 
     del_folders = True
-    if(del_folders):
+    if del_folders:
         clear_folders(id_dir)
 
     print(df)
@@ -269,6 +269,3 @@ def test_csv_append():
     file = 'models.csv'
     csv_append(info,file)
     print("next id: %s" % get_next_id('models.csv'))
-
-if __name__ == '__main__':
-    train("rna-seq", "loxodonta", "wgs", "loxodonta", 6, 10000, 50)

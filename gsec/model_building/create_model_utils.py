@@ -81,7 +81,7 @@ def calculate_dimension(kmer_list):
     return total_count
 
 
-def append_experiment(df,proj,fname, kmer_count, label):
+def append_experiment(df,fname, kmer_count, label):
     """
     Append experiment of name "fname" to dataframe
     If number of rows in txt file doesn't match
@@ -92,16 +92,14 @@ def append_experiment(df,proj,fname, kmer_count, label):
     # case 1: kmer counts are missing
     if ((df_new.shape)[0] != kmer_count):
         error_file = open("errors.txt", "a+")
-        error_file.write("\r%s, %s, missing_kmers" % (proj.name,
-                        fname.name))
+        error_file.write("\r%s, missing_kmers" % (fname.name))
         error_file.close()
         return df
 
     # case 2: all kmer counts are 0
     elif (df_new.iloc[:, 1].sum() == 0):
             error_file = open("errors.txt", "a+")
-            error_file.write("\r%s, %s, kmers_zeros" % (proj.name,
-                            fname.name))
+            error_file.write("\r%s, kmers_zeros" % (fname.name))
             error_file.close()
             return df
     else:
@@ -123,22 +121,18 @@ def load_data(data_name, df, kmer_count, label, data_dir):
     appended to it
     """
 
-    SRPs = Path(os.path.join(data_dir, data_name))
-    for project in SRPs.iterdir():
-        if project.is_dir():
-            experiment_list = Path(os.path.join(SRPs, project))
-            for experiment in experiment_list.iterdir():
-                extension = experiment.suffix
-                if os.stat(experiment).st_size != 0 and extension == '.txt':
-                    df = append_experiment(df,
-                    project,
-                    experiment,
-                    kmer_count,
-                    label)
-                else:
-                    error_file = open("errors.txt", "a+")
-                    error_file.write("\r%s, %s, empty_file" % (project.name,
-                    experiment.name))
+    experiment_list = Path(os.path.join(data_dir, data_name))
+    for experiment in experiment_list.iterdir():
+        extension = experiment.suffix
+        if os.stat(experiment).st_size != 0 and extension == '.txt':
+            df = append_experiment(df,
+            experiment,
+            kmer_count,
+            label)
+        else:
+            error_file = open("errors.txt", "a+")
+            error_file.write("\r%s, empty_file" % (experiment.name))
+
     return df
 
 def create_dataframe(data_dir, first_data_type, second_data_type, kmer_list):
@@ -152,16 +146,15 @@ def create_dataframe(data_dir, first_data_type, second_data_type, kmer_list):
     kmer_count = calculate_dimension(kmer_list)
 
     df = load_data(first_data_type, df, kmer_count, 0, data_dir)
-    if(df.shape[0] < 20):
-        print("Less than 20 counts in %s data file. Aborting" % first_data_type)
-        return
+    # if(df.shape[0] < 20):
+    #     print("Less than 20 counts in %s data file. Aborting" % first_data_type)
+    #     return
 
     df = load_data(second_data_type, df, kmer_count, 1, data_dir)
-    if(df.shape[0] < 40):
-        print("Less than 20 counts in %s data file. Aborting" %
-        second_data_type)
-        return
-
+    # if(df.shape[0] < 40):
+    #     print("Less than 20 counts in %s data file. Aborting" %
+    #     second_data_type)
+    #     return
 
     return df
 
