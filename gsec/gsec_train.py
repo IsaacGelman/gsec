@@ -143,7 +143,12 @@ def train(
             print("Model building failed. Aborting")
             clear_folders(id_dir)
         else:
-            csv_append(info, 'models.csv') # everything ran, append model info to csv
+            csv_append(info, 'models.csv') # everything ran, append model
+                                           #info to csv
+
+    del_folders = True
+    if(del_folders):
+        clear_folders(id_dir) 
 
     print(df)
     return 0
