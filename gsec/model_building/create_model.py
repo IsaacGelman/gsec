@@ -1,5 +1,5 @@
 from .ModelRunner import ModelRunner
-
+import os
 
 # function for creating and saving model
 def create_model(df, maxk, id):
@@ -38,7 +38,7 @@ def create_model(df, maxk, id):
     runner.ensemble()
 
     # lasso
-    runner.lasso()
+    # runner.lasso()
 
     # get best model
     best, acc = runner.get_best_model()

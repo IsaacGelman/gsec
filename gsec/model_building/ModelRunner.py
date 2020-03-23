@@ -31,7 +31,7 @@ class ModelRunner():
         # models
         self.models = {}
 
-    def log_reg():
+    def log_reg(self):
         log_reg = LogisticRegressionCV(cv=5, random_state=0)
         log_reg.fit(self.X_train, self.y_train)
 
@@ -39,7 +39,7 @@ class ModelRunner():
 
         self.models['log_reg'] = (log_reg, accuracy_score(self.y_test, pred))
 
-    def knn():
+    def knn(self):
         base_knn = neighbors.KNeighborsClassifier()
         parameters = {
             'n_neighbors': [1, 2, 5, 10, 15, 25],
@@ -47,13 +47,13 @@ class ModelRunner():
         }
 
         knn = GridSearchCV(base_knn, parameters, cv=3)
-        knn.fit(X_train, y_train)
+        knn.fit(self.X_train, self.y_train)
 
-        pred = knn.predict(X_test)
+        pred = knn.predict(self.X_test)
 
         self.models['knn'] = (knn, accuracy_score(self.y_test, pred))
 
-    def gnb():
+    def gnb(self):
         base_gnb = GaussianNB()
         parameters = {'var_smoothing': [1e-20, 
                                         1e-15, 
@@ -66,7 +66,7 @@ class ModelRunner():
         pred = gnb.predict(self.X_test)
         self.models['gaussnb'] = (gnb, accuracy_score(self.y_test, pred))
 
-    def rf():
+    def rf(self):
         # random forest
         base_rf = RandomForestClassifier(n_estimators=50)
         parameters = {
@@ -79,38 +79,38 @@ class ModelRunner():
         pred = rf.predict(self.X_test)
         self.models['rand_forest'] = (rf, accuracy_score(self.y_test, pred))
 
-    def ensemble():
+    def ensemble(self):
         # get model name and trained model
         estimators = [(item[0], item[1][0]) for item in self.models.items()]
         eclf = VotingClassifier(estimators=estimators,voting='soft')
 
-        eclf.fit(X_train, y_train)
+        eclf.fit(self.X_train, self.y_train)
 
         pred = eclf.predict(X_test)
 
         self.models['ensemble'] = (ensemble, accuracy_score(self.y_test, pred))
 
-    def lasso():
+    def lasso(self):
         # lasso
         parameters = {'alpha': [1e-15, 1e-10, 1e-8, 1e-4, 1e-3, 1e-2, 1, 5, 10]}
         lassoclf = Lasso(alpha=.0005, tol=1)
-        print(cross_val_score(lassoclf, X_train, y_train, cv=3))
-        lassoclf.fit(X_train, y_train)
+        print(cross_val_score(lassoclf, self.X_train, self.y_train, cv=3))
+        lassoclf.fit(self.X_train, self.y_train)
 
         np.set_printoptions(threshold=np.inf)
         coefficients = lassoclf.coef_
         df.columns.where(coefficients != 0).dropna()
 
-        pred = lassoclf.predict(X_test)
+        pred = lassoclf.predict(self.X_test)
 
-        print('Accuracy: ', accuracy_score(y_test, 1 * (pred > 0.5)))
-        print(classification_report(y_test, 1 * (pred > 0.5)))
+        # print('Accuracy: ', accuracy_score(y_test, 1 * (pred > 0.5)))
+        # print(classification_report(y_test, 1 * (pred > 0.5)))
 
-        model_scores['log-reg'] = accuracy_score(y_test, 1 * (pred > 0.5))
-        model_types['log-reg'] = lassoclf
+        # model_scores['log-reg'] = accuracy_score(y_test, 1 * (pred > 0.5))
+        # model_types['log-reg'] = lassoclf
 
 
-    def get_best_model():
+    def get_best_model(self):
         """
         returns the best model and max score (in this order) 
         """
@@ -124,7 +124,7 @@ class ModelRunner():
 
         return best_model, max_score
     
-    def save_model(model, file_dir):
+    def save_model(self, model, file_dir):
         """
         model: model to save
         file_dir: path to save model file
