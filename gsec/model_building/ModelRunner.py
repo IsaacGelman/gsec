@@ -86,9 +86,9 @@ class ModelRunner():
 
         eclf.fit(self.X_train, self.y_train)
 
-        pred = eclf.predict(X_test)
+        pred = eclf.predict(self.X_test)
 
-        self.models['ensemble'] = (ensemble, accuracy_score(self.y_test, pred))
+        self.models['ensemble'] = (eclf, accuracy_score(self.y_test, pred))
 
     def lasso(self):
         # lasso
@@ -117,7 +117,7 @@ class ModelRunner():
         max_score = -1.0
         best_model = None
 
-        for model in self.models:
+        for model in self.models.values():
             if model[1] > max_score:
                 max_score = model[1]
                 best_model = model[0]
@@ -130,4 +130,4 @@ class ModelRunner():
         file_dir: path to save model file
         """
         with open(file_dir, "wb") as file:
-            pickle.dump(model_types[model_type_string], file)
+            pickle.dump(model, file)
