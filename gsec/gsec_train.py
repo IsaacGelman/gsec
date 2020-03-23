@@ -47,13 +47,9 @@ import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from xml.etree.ElementTree import ParseError
-# from .model_building.create_model_utils import create_dataframe
-# from .model_building.create_model import create_model
-# from .utils.csv_utils import csv_append, get_next_id
-
-from model_building.create_model_utils import create_dataframe
-from model_building.create_model import create_model
-from utils.csv_utils import csv_append, get_next_id
+from .model_building.create_model_utils import create_dataframe
+from .model_building.create_model import create_model
+from .utils.csv_utils import csv_append, get_next_id
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
 
@@ -273,36 +269,3 @@ def test_csv_append():
     file = 'models.csv'
     csv_append(info,file)
     print("next id: %s" % get_next_id('models.csv'))
-
-
-def test():
-    info = {
-            "id": 1,
-            "org1": "homo sapiens",
-            "strat1": "bla",
-            "org2": "nle",
-            "strat2": "blo",
-            "max_k": 6,
-            "limit": 50
-    }
-    data_dir = os.path.join(ROOT, 'model_building', 'data', '1')
-    df = create_dataframe(
-        data_dir,
-        "rna-seq",
-        "wgs",
-        [i for i in range(1, 6+1)]
-    )
-
-    print(df)
-
-    # if not, use returned dataframe to train models and return
-    if create_model(df, 6, get_next_id('models.csv')) != 0:
-        print("Model building failed. Aborting")
-    else:
-        csv_append(info, 'models.csv') # everything ran, append model
-                                       #info to csv
-
-    print(df)
-
-if __name__ == '__main__':
-    test()
