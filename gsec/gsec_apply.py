@@ -38,8 +38,16 @@ def apply_(
     # loop through list of models
     for row in csv_file:
         print(row)
-        # if current rows first and second col match pos & neg strats, use that model
-        if pos_strat == row[2] and neg_strat == row[4]:
+        # find matching model
+        if pos_org == row[1] and pos_strat == row[2]\
+         and neg_org == row[3] and neg_strat == row[4]:
+            print(row)
+            id = row[0]    
+            max_k = row[5]
+            limit = row[6]
+            break
+        elif pos_org == row[3] and pos_strat == row[4]\
+         and neg_org == row[1] and neg_strat == row[2]:
             print(row)
             id = row[0]    
             max_k = row[5]
@@ -113,4 +121,4 @@ def count(k, limit, fastq):
 
 # for testing purposes, remove later
 if __name__ == '__main__':
-    apply_("bla", "human", "blo", "human", "SRR5149059.fastq")
+    apply_("bla", "homo sapiens", "blo", "nle", "SRR5149059.fastq")
