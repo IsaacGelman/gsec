@@ -34,24 +34,30 @@ def apply_(
     
     csv_file = csv.reader(open(os.path.join(ROOT, 'gsec/models.csv')), delimiter=",")
 
-
+    id = -1
     # loop through list of models
     for row in csv_file:
         print(row)
         # if current rows first and second col match pos & neg strats, use that model
-        if pos_strat == row[0] and neg_strat == row[1]:
+        if pos_strat == row[2] and neg_strat == row[4]:
             print(row)
-            model_pkl = row[2]
-            k_vals = row[3]
-            classifier = row[4]
+            id = row[0]    
+            max_k = row[5]
+            limit = row[6]
+            break
+    if id == -1:
+        print("Could not find model matching given strategies.")
+        return 1 # no model found
+    
+    
     
     # open model
-    with open(model_pkl, 'rb') as model_pkl:
+    with open("models/" + id + ".pkl", 'rb') as model_pkl:
         model = pickle.load(model_pkl)  
 
     # count kmers and create dataframe with result
     # TODO  make custom
-    cmd = count(6, 1000, file)
+    cmd = count(max_k, limit, file)
     a = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
 
     if sys.version_info[0] < 3: 
@@ -72,7 +78,7 @@ def apply_(
     print("\nresult: " + str(result))
     
 
-    return 0; # success
+    return 0 # success
 
     
 def count(k, limit, fastq):
@@ -107,4 +113,4 @@ def count(k, limit, fastq):
 
 # for testing purposes, remove later
 if __name__ == '__main__':
-    apply_("bisulfite", "human", "wgs", "human", "SRR5149059.fastq")
+    apply_("bla", "human", "blo", "human", "SRR5149059.fastq")
