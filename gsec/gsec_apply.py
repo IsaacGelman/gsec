@@ -2,7 +2,8 @@ import sys, os, argparse
 import subprocess
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import ParseError
-ROOT = os.path.dirname(os.getcwd())
+# ROOT = os.path.dirname(os.getcwd())
+ROOT = os.path.dirname(os.path.realpath(__file__))
 
 
 import csv
@@ -32,7 +33,7 @@ def apply_(
     # TODO will have to change for when there is an actual models.csv file
     # read csv, and split on "," the line
     
-    csv_file = csv.reader(open(os.path.join(ROOT, 'gsec/models.csv')), delimiter=",")
+    csv_file = csv.reader(open(os.path.join(ROOT, 'models.csv')), delimiter=",")
 
     id = -1
     # loop through list of models
@@ -60,12 +61,17 @@ def apply_(
     
     
     # open model
-    with open("models/" + id + ".pkl", 'rb') as model_pkl:
+    model_dir = os.path.join(ROOT, "models", id+".pkl")
+    with open(model_dir, 'rb') as model_pkl:
         model = pickle.load(model_pkl)  
 
     # count kmers and create dataframe with result
     # TODO  make custom
     cmd = count(max_k, limit, file)
+    if not cmd:
+        print("ERROR Invalid File")
+        return 2 # error
+
     a = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
 
     if sys.version_info[0] < 3: 
@@ -82,6 +88,7 @@ def apply_(
     df = pd.read_table(b, usecols={"freq"}, sep="\t")
     df = df.T
 
+    print(df)
     result = model.predict(df)  
     print("\nresult: " + str(result))
     
@@ -98,21 +105,24 @@ def count(k, limit, fastq):
     """
 
     # check if stream_kmers is compiled
-    if ('stream_kmers') not in os.listdir(os.path.join(ROOT, 'gsec', 'utils')):
+    if ('stream_kmers') not in os.listdir(os.path.join(ROOT, 'utils')):
         # compile
         comp = 'g++ {} -o {}'.format(
-            os.path.join(ROOT, 'gsec', 'utils', 'stream_kmers.cpp'),
-            os.path.join(ROOT, 'gsec', 'utils', 'stream_kmers')
+            os.path.join(ROOT, 'utils', 'stream_kmers.cpp'),
+            os.path.join(ROOT, 'utils', 'stream_kmers')
             )
         print('COMPILING....')
         print(comp)
         subprocess.call(comp, shell=True)
 
     # shell commands to run
-    count_path = os.path.join(ROOT,  'gsec', 'utils', 'stream_kmers')
+    count_path = os.path.join(ROOT, 'utils', 'stream_kmers')
     # TODO fastq path should just be what is passed in as argument i think
     # also, will be called from gsec or gsec/gsec ?
-    fastq = os.path.join(ROOT, 'gsec', fastq)
+
+    # fastq = os.path.join(ROOT, fastq)
+    if not os.path.exists(fastq):
+        return
     count = "{} {} {}".format(count_path,
                                      str(k),
                                      str(limit))
