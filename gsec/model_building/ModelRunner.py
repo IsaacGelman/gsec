@@ -7,11 +7,12 @@ from sklearn.model_selection import train_test_split, GridSearchCV, \
 cross_val_score
 from sklearn import naive_bayes
 from sklearn.naive_bayes import GaussianNB
-from sklearn.metrics import roc_auc_score, accuracy_score, 
+from sklearn.metrics import roc_auc_score, accuracy_score, \
 classification_report, confusion_matrix
 from sklearn.ensemble import RandomForestClassifier, VotingClassifier
 from sklearn.linear_model import LinearRegression, LogisticRegressionCV, Lasso
 from sklearn import neighbors
+from sklearn import preprocessing
 
 class ModelRunner():
 
@@ -28,6 +29,13 @@ class ModelRunner():
             shuffle=True,
             stratify=y
             )
+
+        # scaler
+        model_scaler = preprocessing.StandardScaler().fit(self.X_train)
+        X_train_scaled = model_scaler.transform(self.X_train)
+        X_test_scaled = model_scaler.transform(self.X_test)
+        self.X_train = pd.DataFrame(X_train_scaled, index=self.X_train.index, columns=self.X_train.columns)
+        self.X_test = pd.DataFrame(X_test_scaled, index=self.X_test.index, columns=self.X_test.columns)
 
         # models
         self.models = {}
