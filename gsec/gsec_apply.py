@@ -33,7 +33,7 @@ def apply_(
     # TODO will have to change for when there is an actual models.csv file
     # read csv, and split on "," the line
     
-    csv_file = csv.reader(open(os.path.join(ROOT, 'models.csv')), delimiter=",")
+    csv_file = csv.reader(open(os.path.join(ROOT, 'model_building/models.csv')), delimiter=",")
 
     id = -1
     swap_order = False

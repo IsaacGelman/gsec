@@ -76,7 +76,8 @@ def main():
                   args.num_samples)
         else:
             parser.error("command gsec train requires:\n\t pos-strat," +
-                         " pos-org, neg-strat, neg-org, k-value, num-samples")
+                         " pos-org, neg-strat, neg-org, k-value, num-samples," +
+                         " limit")
     elif args.command=="apply":
         if args.pos_strat and args.pos_org and args.neg_strat \
          and args.neg_org and args.fastq:

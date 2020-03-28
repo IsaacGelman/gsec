@@ -23,19 +23,19 @@ def create_model(df, maxk, id):
     # try different models
 
     # log-reg
-    runner.log_reg()
+    runner.log_reg(print_matrix=True)
 
     # knn
-    runner.knn()
+    runner.knn(print_matrix=True)
 
     # gauss nb
-    runner.gnb()
+    runner.gnb(print_matrix=True)
 
     # random forest
-    runner.rf()
+    runner.rf(print_matrix=True)
 
     # ensemble
-    runner.ensemble()
+    runner.ensemble(print_matrix=True)
 
     # lasso
     # runner.lasso()

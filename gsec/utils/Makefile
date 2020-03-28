@@ -35,7 +35,7 @@
 PROGS = stream_kmers
 
 CXX = g++
-CXXFLAGS = -Wall -std=c++11 -O3
+CXXFLAGS = -std=c++11 -O3
 LDLIBS = # no libraries to link with
 CPPFLAGS = # nothing for the preprocessor
 
