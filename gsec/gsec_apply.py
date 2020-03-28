@@ -20,7 +20,7 @@ def apply_(
     neg_org,
     file
 ):
-    print('python3 gsec.py pos_strat pos_org neg_strat neg_org fastq_file')
+    print('python3 gsec.py pos_strat pos_org neg_strat neg_org fastq_file\n')
 
     """
     pos_strat: (str) strategy for positive set
@@ -36,23 +36,26 @@ def apply_(
     csv_file = csv.reader(open(os.path.join(ROOT, 'models.csv')), delimiter=",")
 
     id = -1
+    swap_order = False
     # loop through list of models
     for row in csv_file:
-        print(row)
         # find matching model
         if pos_org == row[1] and pos_strat == row[2]\
          and neg_org == row[3] and neg_strat == row[4]:
-            print(row)
+            print("Found Model:", row[1], row[2], "&", row[3], row[4])
             id = row[0]    
             max_k = row[5]
             limit = row[6]
+            print("\tModel ID:", id, "... Max k val:", max_k, '\n')
             break
         elif pos_org == row[3] and pos_strat == row[4]\
          and neg_org == row[1] and neg_strat == row[2]:
-            print(row)
+            swap_order = True
+            print("Found Model:", row[3], row[4], ",", row[1], row[2])
             id = row[0]    
             max_k = row[5]
             limit = row[6]
+            print("\tModel ID:", id, "... Max k val: ", max_k, '\n')
             break
     if id == -1:
         print("Could not find model matching given strategies.")
@@ -88,9 +91,22 @@ def apply_(
     df = pd.read_table(b, usecols={"freq"}, sep="\t")
     df = df.T
 
-    print(df)
     result = model.predict(df)  
-    print("\nresult: " + str(result))
+    prob = model.predict_proba(df)
+
+    if swap_order:
+        result = 1 - result
+        prob[0][0], prob[0][1] = prob[0][1], prob[0][0]
+    
+    # positive is 0, negative is 1
+    if not result:
+        print("\nPredicted:", pos_strat, pos_org)
+        print("\tProbability:", prob[0][0])
+    else:
+        print("\nPredicted:", neg_strat, neg_org)
+        print("\tProbability:", prob[0][1])
+    
+    
     
 
     return 0 # success
@@ -117,10 +133,7 @@ def count(k, limit, fastq):
 
     # shell commands to run
     count_path = os.path.join(ROOT, 'utils', 'stream_kmers')
-    # TODO fastq path should just be what is passed in as argument i think
-    # also, will be called from gsec or gsec/gsec ?
 
-    # fastq = os.path.join(ROOT, fastq)
     if not os.path.exists(fastq):
         return
     count = "{} {} {}".format(count_path,
