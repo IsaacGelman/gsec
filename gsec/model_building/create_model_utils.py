@@ -124,7 +124,7 @@ def load_data(data_name, df, kmer_count, label, data_dir):
     experiment_list = Path(os.path.join(data_dir, data_name))
     for experiment in experiment_list.iterdir():
         extension = experiment.suffix
-        if os.stat(experiment).st_size != 0 and extension == '.txt':
+        if os.stat(str(experiment)).st_size != 0 and extension == '.txt':
             df = append_experiment(df,
             experiment,
             kmer_count,
