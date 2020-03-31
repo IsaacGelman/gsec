@@ -23,22 +23,22 @@ def create_model(df, maxk, id):
     # try different models
 
     # log-reg
-    runner.log_reg(print_matrix=True)
+    runner.log_reg()
 
     # knn
-    runner.knn(print_matrix=True)
+    runner.knn()
 
     # gauss nb
-    runner.gnb(print_matrix=True)
+    runner.gnb()
 
     # random forest
-    runner.rf(print_matrix=True)
+    runner.rf()
 
     # ensemble
-    runner.ensemble(print_matrix=True)
+    runner.ensemble()
 
     # lasso
-    # runner.lasso()
+    runner.lasso()
 
     # get best model
     best, acc = runner.get_best_model()

@@ -1,7 +1,7 @@
 import os
 ROOT = os.path.dirname(os.path.realpath(__file__))
 
-class Trainer():
+class ModelTrainer():
 
 	def __init__(self,
 		pos_org, 

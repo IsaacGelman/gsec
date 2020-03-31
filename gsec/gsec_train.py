@@ -50,6 +50,7 @@ from xml.etree.ElementTree import ParseError
 from .model_building.create_model_utils import create_dataframe
 from .model_building.create_model import create_model
 from .utils.csv_utils import csv_append, get_next_id
+import random
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
 
@@ -82,19 +83,21 @@ def train(
     pos_srrs = parse_xml(os.path.join(ROOT, 'utils', 'pos.xml'), n)
     if len(pos_srrs) == 0:
         print('{}, {} returned no matches...'.format(pos_strat, pos_org))
+        remove_temp(os.path.join(ROOT, 'utils'))
         return 1
 
 
     neg_srrs = parse_xml(os.path.join(ROOT, 'utils', 'neg.xml'), n)
     if len(neg_srrs) == 0:
         print('{}, {} returned no matches...'.format(neg_strat, neg_org))
+        remove_temp(os.path.join(ROOT, 'utils'))
         return 1
 
     # delete temp srr files
     remove_temp(os.path.join(ROOT, 'utils'))
 
     # validate directories to save files
-    id_dir = validate_dirs(get_next_id('models.csv'), pos_strat, neg_strat)
+    id_dir = validate_dirs(get_next_id('models.csv'))
 
     # count srrs
     print("<--- Counting positives --->")
@@ -102,14 +105,14 @@ def train(
     for srr in pos_srrs:
         c+=1
         print("Counting {} [{}/{}]...".format(srr, c, len(pos_srrs)))
-        count(k, limit, srr, os.path.join(id_dir, pos_strat))
+        count(k, limit, srr, os.path.join(id_dir, "positive"))
 
     print("<--- Counting negatives --->")
     c = 0
     for srr in neg_srrs:
         c += 1
         print("Counting {} [{}/{}]...".format(srr, c, len(neg_srrs)))
-        count(k, limit, srr, os.path.join(id_dir,neg_strat))
+        count(k, limit, srr, os.path.join(id_dir,"negative"))
 
     print("Done counting!")
 
@@ -126,24 +129,23 @@ def train(
 
 
     # create dataframe from count files
-    # TODO: alter names of data directories and ask for list of kmers
     df = create_dataframe(
         id_dir,
-        pos_strat,
-        neg_strat,
+        "positive",
+        "negative",
         [i for i in range(1, k+1)]
     )
 
     # check if dataframe is empty: if it is, not enough data and must abort
-    if df is None:
-        clear_folders(id_dir)
-        return 1
+    # if df is None:
+    #     clear_folders(id_dir)
+    #     return 1
 
     # if not, use returned dataframe to train models and return
     else:
         if create_model(df, k, get_next_id('models.csv')) != 0:
             print("Model building failed. Aborting")
-            clear_folders(id_dir)
+            # clear_folders(id_dir)
         else:
             csv_append(info, 'models.csv') # everything ran, append model
                                            #info to csv
@@ -192,7 +194,7 @@ def query(strat, org, n, temp_path):
     """
     esearch = 'esearch -db sra -query "{}[strategy] AND {}[organism]"'.format(
         strat, org)
-    efetch = 'efetch -db sra -format docsum -stop {}'.format(str(n))
+    efetch = 'efetch -db sra -format docsum -stop {}'.format(str(n*10))
     query = esearch + ' | ' + efetch + ' > ' + temp_path
 
     subprocess.call(query, shell=True)
@@ -206,10 +208,12 @@ def parse_xml(filename, n):
     returns: (list[str]): list of SRRs to download. Will return empty list if
     query returned no results.
     """
+    print(filename)
     try:
         tree = ET.parse(filename)
     except ParseError:
-        return []
+        print("Error parsing xml")
+        raise ParseError
 
     root = tree.getroot()
 
@@ -219,9 +223,11 @@ def parse_xml(filename, n):
         for run in runs.iter('Run'):
             srrs.append(run.attrib['acc'])
 
+    # check if returned enough matches
     if len(srrs) < n:
         return srrs
     else:
+        random.shuffle(srrs)
         return srrs[:n]
 
 def remove_temp(temp_path):
@@ -231,7 +237,7 @@ def remove_temp(temp_path):
     if "pos.xml" in files:
         os.remove(os.path.join(temp_path,'pos.xml'))
 
-def validate_dirs(id, positive_strat, negative_strat):
+def validate_dirs(id):
     """
     This function will create relevant directories to save count files.
     id: id of the set of data to use as name of directory
@@ -241,11 +247,9 @@ def validate_dirs(id, positive_strat, negative_strat):
     # setting up paths
     data = os.path.join(ROOT, "model_building", "data")
     id_dir = os.path.join(data, str(id))
-    positive = os.path.join(id_dir, positive_strat)
-    negative = os.path.join(id_dir, negative_strat)
 
-    #positive = os.path.join(id_dir, "positive")
-    #negative = os.path.join(id_dir, "negative")
+    positive = os.path.join(id_dir, "positive")
+    negative = os.path.join(id_dir, "negative")
 
     # Create directories
     for directory in [data, id_dir, positive, negative]:

@@ -42,8 +42,12 @@ class ModelRunner():
         # models
         self.models = {}
 
+        # create new summary file
+        with open("model_summary.txt", "w") as ms:
+            pass
+
     def log_reg(self):
-        log_reg = LogisticRegressionCV(cv=5, random_state=0, solver=liblinear)
+        log_reg = LogisticRegressionCV(cv=5, random_state=0, solver="liblinear")
         log_reg.fit(self.X_train, self.y_train)
 
         pred = log_reg.predict(self.X_test)
@@ -117,17 +121,12 @@ class ModelRunner():
         # lasso
         parameters = {'alpha': [1e-15, 1e-10, 1e-8, 1e-4, 1e-3, 1e-2, 1, 5, 10]}
         lassoclf = Lasso(alpha=.0005, tol=1)
-        print(cross_val_score(lassoclf, self.X_train, self.y_train, cv=3))
         lassoclf.fit(self.X_train, self.y_train)
-
-        np.set_printoptions(threshold=np.inf)
-        coefficients = lassoclf.coef_
-        df.columns.where(coefficients != 0).dropna()
 
         pred = lassoclf.predict(self.X_test)
 
         # Record summary and save
-        self.write_summary("Lasso Regression", pred)
+        # self.write_summary("Lasso Regression", pred)
         self.models['lasso'] = (lassoclf, accuracy_score(self.y_test, pred))
 
 
@@ -154,16 +153,17 @@ class ModelRunner():
         with open(file_dir, "wb") as file:
             pickle.dump(model, file)
 
-    def write_summary(model_name, pred):
+    def write_summary(self, model_name, pred):
         """
         model_name: str
         pred: vector with predicted values
         """
 
         with open("model_summary.txt", "a") as summary:
-            summary.write("SUMMARY {}: \n")
+            summary.write("SUMMARY {}: \n".format(model_name))
             summary.write("Confusion Matrix: \n")
-            summary.write(confusion_matrix(self.y_train, pred))
+            summary.write(str(confusion_matrix(self.y_test, pred)))
+            summary.write("\n")
             summary.write("Classification Report: \n")
-            summary.write(classification_report(self.y_train, pred))
+            summary.write(classification_report(self.y_test, pred))
             summary.write("\n =================================== \n")

@@ -57,7 +57,7 @@ def clear_errors():
     Clear previous errors from file so only new errors from current run
     are recorded
     """
-    error_file = open("errors.txt", "w+")
+    error_file = open(os.path.join(model_dir, "errors.txt"), "w+")
     error_file.write("project_name, file_name, error_type")
     error_file.close()
 
