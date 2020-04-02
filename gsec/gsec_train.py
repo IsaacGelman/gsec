@@ -137,9 +137,10 @@ def train(
     )
 
     # check if dataframe is empty: if it is, not enough data and must abort
-    # if df is None:
-    #     clear_folders(id_dir)
-    #     return 1
+    if df is None:
+        # clear_folders(id_dir)
+        print("dataframe is empty")
+        return 1
 
     # if not, use returned dataframe to train models and return
     else:
