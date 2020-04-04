@@ -200,7 +200,29 @@ def query(strat, org, n, temp_path):
 
     subprocess.call(query, shell=True)
 
+    # Make sure xml is valid
+    tags = ['<DocumentSummarySet>',
+        '</DocumentSummarySet>',
+        '<DocumentSummarySet status="OK">',
+        '<?xml version="1.0" encoding="UTF-8" ?>',
+        '',
+      ]
+    lines = []
+    with open(temp_path, 'r') as f:
+        lines += f.readlines()
 
+    with open(temp_path, 'w') as f:
+        f.write('<?xml version="1.0" encoding="UTF-8" ?>\n')
+        f.write("<DocumentSummarySet>\n")
+
+        # Discard garbage lines
+        for line in lines:
+            if not (line.strip() in tags or line.startswith("<!DOCTYPE")):
+                f.write(line)
+
+        f.write('</DocumentSummarySet>')
+        
+        
 def parse_xml(filename, n):
     """
     filename (str): name of xml file to read
