@@ -86,6 +86,9 @@ class ModelRunner():
             'weights': ['uniform', 'distance']
         }
 
+        knn = GridSearchCV(base_knn, parameters, cv=3)
+        knn.fit(self.X_train, self.y_train)
+
         pred_train = knn.predict(self.X_train)
 
         with open("model_summary.txt", "a") as summary:

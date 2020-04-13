@@ -6,10 +6,11 @@ ROOT = os.path.dirname(os.path.realpath(__file__))
 
 
 def main():
-	path = os.path.join(ROOT, "model_building", "data", "1")
+	n = str(2)
+	path = os.path.join(ROOT, "model_building", "data", n)
 	
-	df = create_dataframe("/home/cs104/testdata/1","positive","negative",[i for i in range(1, 6+1)])
-	create_model(df, 6, "2") != 0
+	df = create_dataframe(path,"positive","negative",[i for i in range(1, 6+1)])
+	create_model(df, 6, n) != 0
 
 
 if __name__ == '__main__':
