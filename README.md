@@ -6,6 +6,13 @@
 1. Entrez utilities (esearch, etc.)
 2. SRA toolkit
 3. Python 3
+4. Disable SRA download caching:
+
+  a. https://standage.github.io/that-darn-cache-configuring-the-sra-toolkit.html
+  
+  b. run vdb-config --interactive
+  
+  c. go to cache tab and uncheck "enable local file-caching" if it isn't already
 
 # Usage:
 
