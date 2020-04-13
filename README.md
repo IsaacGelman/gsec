@@ -7,7 +7,11 @@
 2. SRA toolkit
 3. Python 3
 
-# Usage:
+# Recommended:
+Disable SRA download caching:
+1. Follow instructions at https://standage.github.io/that-darn-cache-configuring-the-sra-toolkit.html
+2. run vdb-config --interactive
+3. go to cache tab and uncheck "enable local file-caching" if it isn't already
 
 # Streaming and piping functions:
 usage: compile with `g++ stream_kmers.cpp -o stream_kmers`.
