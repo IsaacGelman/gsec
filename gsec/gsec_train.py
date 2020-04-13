@@ -77,7 +77,9 @@ def train(
 
     # Queries
     query(pos_strat, pos_org, n, os.path.join(ROOT,'utils', 'pos.xml'))
-    query(pos_strat, pos_org, n, os.path.join(ROOT,'utils', 'neg.xml'))
+    # oh boy
+    # query(pos_strat, pos_org, n, os.path.join(ROOT,'utils', 'neg.xml'))
+    query(neg_strat, neg_org, n, os.path.join(ROOT,'utils', 'neg.xml'))
 
     # get srrs
     pos_srrs = parse_xml(os.path.join(ROOT, 'utils', 'pos.xml'), n)

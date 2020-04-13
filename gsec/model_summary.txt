@@ -1,0 +1,30 @@
+SUMMARY Logistic Regression TRAIN: 
+Confusion Matrix: 
+[[31  0]
+ [16  4]]
+Classification Report: 
+              precision    recall  f1-score   support
+
+           0       0.66      1.00      0.79        31
+           1       1.00      0.20      0.33        20
+
+    accuracy                           0.69        51
+   macro avg       0.83      0.60      0.56        51
+weighted avg       0.79      0.69      0.61        51
+
+ =================================== 
+SUMMARY Logistic Regression TEST: 
+Confusion Matrix: 
+[[9 0]
+ [6 3]]
+Classification Report: 
+              precision    recall  f1-score   support
+
+           0       0.60      1.00      0.75         9
+           1       1.00      0.33      0.50         9
+
+    accuracy                           0.67        18
+   macro avg       0.80      0.67      0.62        18
+weighted avg       0.80      0.67      0.62        18
+
+ =================================== 

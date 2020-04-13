@@ -11,8 +11,9 @@ from sklearn.metrics import roc_auc_score, accuracy_score, \
 classification_report, confusion_matrix
 from sklearn.ensemble import RandomForestClassifier, VotingClassifier
 from sklearn.linear_model import LinearRegression, LogisticRegressionCV, Lasso
+from sklearn.linear_model import LogisticRegression
 from sklearn import neighbors
-from sklearn import preprocessing
+from sklearn.preprocessing import StandardScaler
 
 class ModelRunner():
 
@@ -25,19 +26,20 @@ class ModelRunner():
         self.y_test = train_test_split(
             df.reset_index(drop=True),
             y,
-            test_size=0.25,
-            shuffle=True,
-            stratify=y
-            )
+            test_size=0.25)
+            # shuffle=True,
+            # stratify=y)
+        print("y:\n",y)
+        print("ytrain:\n",self.y_train)
 
         # scaler
-        model_scaler = preprocessing.StandardScaler().fit(self.X_train)
-        X_train_scaled = model_scaler.transform(self.X_train)
-        X_test_scaled = model_scaler.transform(self.X_test)
-        self.X_train = pd.DataFrame(X_train_scaled, index=self.X_train.index,
-            columns=self.X_train.columns)
-        self.X_test = pd.DataFrame(X_test_scaled, index=self.X_test.index,
-            columns=self.X_test.columns)
+        # model_scaler = preprocessing.StandardScaler().fit(self.X_train)
+        # X_train_scaled = model_scaler.transform(self.X_train)
+        # X_test_scaled = model_scaler.transform(self.X_test)
+        # self.X_train = pd.DataFrame(X_train_scaled, index=self.X_train.index,
+        #     columns=self.X_train.columns)
+        # self.X_test = pd.DataFrame(X_test_scaled, index=self.X_test.index,
+        #     columns=self.X_test.columns)
 
         # models
         self.models = {}
@@ -47,14 +49,35 @@ class ModelRunner():
             pass
 
     def log_reg(self):
-        log_reg = LogisticRegressionCV(cv=5, random_state=0, solver="liblinear")
+        log_reg = LogisticRegression()
         log_reg.fit(self.X_train, self.y_train)
+
+        pred_train = log_reg.predict(self.X_train)
+
+        with open("model_summary.txt", "a") as summary:
+            summary.write("SUMMARY {}: \n".format("Logistic Regression TRAIN"))
+            summary.write("Confusion Matrix: \n")
+            summary.write(str(confusion_matrix(self.y_train, pred_train)))
+            summary.write("\n")
+            summary.write("Classification Report: \n")
+            summary.write(classification_report(self.y_train, pred_train))
+            summary.write("\n =================================== \n")
 
         pred = log_reg.predict(self.X_test)
 
         # Record summary and save
-        self.write_summary("Logistic Regression CV", pred)
+        self.write_summary("Logistic Regression TEST", pred)
         self.models['log_reg'] = (log_reg, accuracy_score(self.y_test, pred))
+
+    # def log_reg(self):
+    #     log_reg = LogisticRegressionCV(cv=5, random_state=0, solver="liblinear")
+    #     log_reg.fit(self.X_train, self.y_train)
+
+    #     pred = log_reg.predict(self.X_test)
+
+    #     # Record summary and save
+    #     self.write_summary("Logistic Regression CV", pred)
+    #     self.models['log_reg'] = (log_reg, accuracy_score(self.y_test, pred))
 
     def knn(self):
         base_knn = neighbors.KNeighborsClassifier()
@@ -63,8 +86,17 @@ class ModelRunner():
             'weights': ['uniform', 'distance']
         }
 
-        knn = GridSearchCV(base_knn, parameters, cv=3)
-        knn.fit(self.X_train, self.y_train)
+        pred_train = knn.predict(self.X_train)
+
+        with open("model_summary.txt", "a") as summary:
+            summary.write("SUMMARY {}: \n".format("KNN TRAIN"))
+            summary.write("Confusion Matrix: \n")
+            summary.write(str(confusion_matrix(self.y_train, pred_train)))
+            summary.write("\n")
+            summary.write("Classification Report: \n")
+            summary.write(classification_report(self.y_train, pred_train))
+            summary.write("\n =================================== \n")
+
 
         pred = knn.predict(self.X_test)
 
@@ -82,6 +114,18 @@ class ModelRunner():
                                         1e-05]}    
         gnb = GridSearchCV(base_gnb, parameters, cv=3)
         gnb.fit(self.X_train, self.y_train)
+        
+        # delete me
+        pred_train = gnb.predict(self.X_train)
+        with open("model_summary.txt", "a") as summary:
+            summary.write("SUMMARY {}: \n".format("gaussian nb TRAIN"))
+            summary.write("Confusion Matrix: \n")
+            summary.write(str(confusion_matrix(self.y_train, pred_train)))
+            summary.write("\n")
+            summary.write("Classification Report: \n")
+            summary.write(classification_report(self.y_train, pred_train))
+            summary.write("\n =================================== \n")
+
         pred = gnb.predict(self.X_test)
 
         # Record summary and save

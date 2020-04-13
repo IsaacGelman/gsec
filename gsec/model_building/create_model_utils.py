@@ -156,6 +156,12 @@ def create_dataframe(data_dir, first_data_type, second_data_type, kmer_list):
     #     second_data_type)
     #     return
 
+    print(df.shape)
+
+    pd.set_option('display.max_rows', 900)
+
+    print(df)
+
     return df
 
 def efficiency_check(first_data_type, second_data_type, kmer_list, n):

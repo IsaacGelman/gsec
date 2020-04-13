@@ -35,7 +35,7 @@ def create_model(df, maxk, id):
     runner.rf()
 
     # ensemble
-    runner.ensemble()
+    # runner.ensemble()
 
     # lasso
     # runner.lasso()
