@@ -4,14 +4,11 @@
 
 # Requirements:
 1. Entrez utilities (esearch, etc.)
-2. SRA toolkit
+2. SRA toolkit (fastq-dump in command line should not throw "not found")
 3. Python 3
 
-# Recommended:
-Disable SRA download caching:
-1. Follow instructions at https://standage.github.io/that-darn-cache-configuring-the-sra-toolkit.html
-2. run vdb-config --interactive
-3. go to cache tab and uncheck "enable local file-caching" if it isn't already
+# Highly recommended:
+Disable SRA download caching: Follow the instructions at https://standage.github.io/that-darn-cache-configuring-the-sra-toolkit.html OR run `vdb-config --interactive`; go to the cache tab and uncheck "enable local file-caching" if it isn't already. 
 
 # Streaming and piping functions:
 usage: compile with `g++ stream_kmers.cpp -o stream_kmers`.
@@ -24,16 +21,15 @@ In a pipeline, usage looks like this: `fastq-dump --skip-technical --split-spot 
 This script will query SRRs that match the specified fields and count the kmers up to the specified k value. It will then save count files to a given directory.
 
 
-`python gsec-train.py --pos-strat --pos-org --neg-strat --neg-org -k -l -o -n`
+`python gsec-train.py --pos-strat --pos-org --neg-strat --neg-org -k -l -n`
 - pos-strat: strategy for positive set
 - pos-org: organism for positive set
 - neg-strat: strategy for negative set
 - neg-org: organism for negative set
 - k: maximum size of kmer to count
 - l: limit number of reads to use
-- o: directory path to save count files
 - n: number of srrs to count for each target (if there are less files that match the query, the maximum amount of files matched will be downloaded)
 
 Example:
-`python gsec-train.py --pos-strat rna-seq --pos-org 'homo sapiens' --neg-strat wgs --neg-org 'homo sapiens' -k 3 -l 20 -o 'data/' -n 10
+`python3 gsec-train.py --pos-strat rna-seq --pos-org 'homo sapiens' --neg-strat wgs --neg-org 'homo sapiens' -k 6 -l 1000 -n 100
 `
