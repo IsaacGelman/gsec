@@ -8,6 +8,7 @@
 3. Python 3
 4. After pulling the repo, enter the `gsec/utils` folder in the install location
 and type `make` to compile the kmer counting function.
+5. Clone the repo, enter the directory, and run `pip install .`.
 
 # Highly recommended:
 Disable SRA download caching: Follow the instructions at 
