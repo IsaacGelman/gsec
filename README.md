@@ -1,6 +1,6 @@
 # gsec (Generalized Sequencing Classifier)
 ## pronounced "jee-seek"
-### Center for Artificial Intelligence in Society (CAIS++) and Smith Computational Genomics Lab Collaboration.
+### USC Center for Artificial Intelligence in Society (CAIS++) and Smith Computational Genomics Lab Collaboration.
                                                                                 
 # Requirements:
 1. Entrez utilities (esearch, etc.)
@@ -8,7 +8,7 @@
 3. Python 3
 4. After pulling the repo, enter the `gsec/utils` folder in the install location
 and type `make` to compile the kmer counting function.
-5. Clone the repo, enter the directory, and run `pip install .`.
+5. Clone the repo, enter the directory, and run `pip install .`
 
 # Highly recommended:
 Disable SRA download caching: Follow the instructions at 
