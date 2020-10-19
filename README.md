@@ -1,6 +1,6 @@
 # gsec (Generalized Sequencing Classifier)
-## pronounced "jee-seek"
 ### USC Center for Artificial Intelligence in Society (CAIS++) and Smith Computational Genomics Lab Collaboration.
+### *Under Construction*
                                                                                 
 # Requirements:
 1. Entrez utilities (esearch, etc.)
